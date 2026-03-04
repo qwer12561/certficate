@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Certificate - Certificate Management System</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="video-bg">
+        <div class="overlay"></div>
+    </div>
+    <main class="container multi-layout">
+        <div class="form-section">
+            <header class="header" style="text-align: left; margin-bottom: 2rem;">
+                <a href="index.html" class="back-link">← Back to Menu</a>
+                <h1 class="title" style="font-size: 2.5rem;">Create Certificate</h1>
+            </header>
+
+            <form id="certificate-form" class="professional-form">
+                <div class="form-group">
+                    <label for="recipient-name">Recipient Name</label>
+                    <input type="text" id="recipient-name" placeholder="Enter full name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="certificate-title">Certificate Title</label>
+                    <input type="text" id="certificate-title" placeholder="e.g. Certificate of Achievement" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="certificate-text">Main Content / Reason</label>
+                    <textarea id="certificate-text" rows="3" placeholder="Enter the recognition text..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="issue-date">Issue Date</label>
+                        <input type="date" id="issue-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="issuer-name">Issuer Name (Primary Signatory)</label>
+                        <input type="text" id="issuer-name" placeholder="Issued by..." required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Design Template</label>
+                    <div class="design-selector">
+                        <label class="design-option">
+                            <input type="radio" name="design" value="modern-blue" checked>
+                            <span>Modern Blue</span>
+                        </label>
+                        <label class="design-option">
+                            <input type="radio" name="design" value="elegant-gold">
+                            <span>Elegant Gold</span>
+                        </label>
+                        <label class="design-option">
+                            <input type="radio" name="design" value="classic-brown">
+                            <span>Classic Brown</span>
+                        </label>
+                        <label class="design-option">
+                            <input type="radio" name="design" value="official-recognition">
+                            <span>Official Recognition</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="additional-fields"
+                    style="display: none; border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
+                    <h3 class="section-subtitle" style="font-size: 1rem;">Design Specific Fields</h3>
+                    <div class="form-group">
+                        <label for="venue-name">Venue (Held at)</label>
+                        <input type="text" id="venue-name" placeholder="e.g. Provincial Capitol">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Signatories</label>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label style="font-size: 0.75rem;">Signatory 1 Name</label>
+                                <input type="text" id="sig-1-name" placeholder="Name">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-size: 0.75rem;">Signatory 1 Title</label>
+                                <input type="text" id="sig-1-title" placeholder="Title/Position">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label style="font-size: 0.75rem;">Signatory 2 Name</label>
+                                <input type="text" id="sig-2-name" placeholder="Name">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-size: 0.75rem;">Signatory 2 Title</label>
+                                <input type="text" id="sig-2-title" placeholder="Title/Position">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label style="font-size: 0.75rem;">Signatory 3 Name</label>
+                                <input type="text" id="sig-3-name" placeholder="Name">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-size: 0.75rem;">Signatory 3 Title</label>
+                                <input type="text" id="sig-3-title" placeholder="Title/Position">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" id="btn-issue">Issue & Save Certificate</button>
+            </form>
+        </div>
+
+        <div class="preview-section">
+            <h2 class="section-subtitle">Live Preview</h2>
+            <div id="certificate-preview" class="certificate-container design-modern-blue">
+                <!-- Content will be dynamically updated by create.js -->
+                <div class="preview-default-content">
+                    <div class="cert-outer-border">
+                        <div class="cert-inner-content">
+                            <div class="cert-header">
+                                <div class="cert-logo-placeholder">OFFICIAL SEAL</div>
+                                <div class="cert-org-name">CERTIFICATE OF RECOGNITION</div>
+                            </div>
+                            <div class="cert-body">
+                                <p class="cert-presented-to">This certificate is proudly presented to</p>
+                                <h2 id="preview-recipient" class="cert-recipient-name">Recipient Name</h2>
+                                <div class="cert-divider"></div>
+                                <p id="preview-title" class="cert-title-text">Course / Achievement Title</p>
+                                <p id="preview-content" class="cert-description">For their outstanding dedication and
+                                    exceptional performance in all areas of the program.</p>
+                            </div>
+                            <div class="cert-footer">
+                                <div class="cert-signature-block">
+                                    <div class="cert-signature-line"></div>
+                                    <p id="preview-issuer" class="cert-issuer">Authorized Signatory</p>
+                                </div>
+                                <div class="cert-date-block">
+                                    <p id="preview-date" class="cert-date">October 24, 2026</p>
+                                    <p class="cert-date-label">Date Issued</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="preview-hint">Note: This is a scaled-down preview. The final certificate will be full size for
+                printing.</p>
+        </div>
+    </main>
+
+    <script src="create.js"></script>
+</body>
+
+</html>

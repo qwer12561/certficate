@@ -1,0 +1,141 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('reprint-search');
+    const searchBtn = document.getElementById('btn-search');
+    const previewContainer = document.getElementById('reprint-preview-container');
+    const certContent = document.getElementById('certificate-to-print');
+    const noResult = document.getElementById('no-result');
+    const printBtn = document.getElementById('btn-print');
+    const downloadBtn = document.getElementById('btn-download');
+
+    // Check for ID in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const certId = urlParams.get('id');
+
+    if (certId) {
+        searchInput.value = certId;
+        searchCertificate(certId);
+    }
+
+    searchBtn.addEventListener('click', () => {
+        searchCertificate(searchInput.value.trim());
+    });
+
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            searchCertificate(searchInput.value.trim());
+        }
+    });
+
+    function searchCertificate(query) {
+        if (!query) return;
+
+        try {
+            const certificates = JSON.parse(localStorage.getItem('certificates') || '[]');
+            const cert = certificates.find(c =>
+                (c.id && c.id === query) ||
+                (c.recipient && c.recipient.toLowerCase() === query.toLowerCase())
+            );
+
+            if (cert) {
+                displayCertificate(cert);
+                noResult.style.display = 'none';
+                previewContainer.style.display = 'block';
+            } else {
+                previewContainer.style.display = 'none';
+                noResult.style.display = 'block';
+            }
+        } catch (e) {
+            console.error('Error searching for certificate:', e);
+            noResult.style.display = 'block';
+        }
+    }
+
+    function getLogoHeader() {
+        return `
+            <div class="cert-header-logos">
+                <img src="logo_pdrrmc.jpg" alt="PDRRMC Logo" class="logo-img">
+                <img src="logo_ocd.jpg" alt="OCD Logo" class="logo-img">
+                <img src="logo_davao.jpg" alt="Province Logo" class="logo-img">
+            </div>
+        `;
+    }
+
+    function displayCertificate(cert) {
+        try {
+            let dateStr = 'Unknown Date';
+            if (cert.date) {
+                const d = new Date(cert.date);
+                if (!isNaN(d.getTime())) {
+                    dateStr = d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                }
+            }
+
+            certContent.className = `certificate-container design-${cert.design || 'standard'} print-ready`;
+
+            if (cert.design === 'official-recognition') {
+                const venue = cert.venue || 'Provincial Capitol';
+                const signatories = cert.signatories || [{ name: cert.issuer || 'Authorized', title: 'Signatory' }];
+
+                const d = new Date(cert.date);
+                const day = !isNaN(d.getTime()) ? d.getDate() : new Date().getDate();
+                const month = !isNaN(d.getTime()) ? d.toLocaleString('en-US', { month: 'long' }) : new Date().toLocaleString('en-US', { month: 'long' });
+                const year = !isNaN(d.getTime()) ? d.getFullYear() : new Date().getFullYear();
+                const ordinal = getOrdinalNum(day);
+
+                certContent.className = `certificate-container design-official-recognition design-${cert.design || 'standard'}`;
+                certContent.innerHTML = `
+                    <div class="official-header">
+                        ${getLogoHeader()}
+                    </div>
+                    <div class="official-body-container">
+                        <div class="official-left-content">
+                            <h1 class="official-main-title">CERTIFICATE</h1>
+                            <div class="official-banner">OF RECOGNITION</div>
+                            
+                            <p class="official-presented-label">PROUDLY PRESENTED TO:</p>
+                            <h2 class="official-recipient-name">${cert.recipient || 'Recipient'}</h2>
+                            <div class="official-name-underline"></div>
+                            
+                            <p class="official-body-text">
+                                In grateful acknowledgement of his distinguished and invaluable service rendered as 
+                                <strong style="text-decoration: underline;">${cert.title || 'Course'}</strong> and thereby 
+                                imparting his knowledge and contributing immeasurably to the success of the <strong>${cert.content || 'Program'}</strong>.
+                            </p>
+                            
+                            <p class="official-venue-info">Held on <strong>${dateStr}</strong> at <strong>${venue}</strong>.</p>
+                            <p class="official-date-info">Given this ${day}${ordinal} day of ${month} ${year}</p>
+                            
+                            <div class="official-footer-signatories">
+                                ${signatories.map(sig => `
+                                    <div class="official-signatory">
+                                        <div class="official-sig-line"></div>
+                                        <p class="official-sig-name">${sig.name}</p>
+                                        <p class="official-sig-title">${sig.title}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Remove fallback to standard as all use official now
+                renderCertificate(cert, 'official-recognition');
+            }
+        } catch (err) {
+            console.error('Failed to display certificate:', err);
+            certContent.innerHTML = '<p style="padding: 2rem; color: #ff5252;">Error: Could not render this certificate. Data might be corrupted.</p>';
+        }
+    }
+
+    function getOrdinalNum(n) {
+        return (n > 3 && n < 21) || n % 10 > 3 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10];
+    }
+
+    printBtn.addEventListener('click', () => {
+        window.print();
+    });
+
+    downloadBtn.addEventListener('click', () => {
+        alert('Downloading PDF is simulated. In a real environment, this would use a library like jsPDF or a server-side generator.');
+    });
+});

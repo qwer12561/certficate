@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reprint Certificate - Certificate Management System</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="video-bg">
+        <div class="overlay"></div>
+    </div>
+    <main class="container">
+        <header class="header" style="text-align: left; margin-bottom: 2rem;">
+            <a href="view.html" class="back-link">← Back to List</a>
+            <h1 class="title">Reprint Certificate</h1>
+            <p class="subtitle">Search and generate print-ready certificates</p>
+        </header>
+
+        <section class="search-section">
+            <div class="search-card">
+                <input type="text" id="reprint-search" placeholder="Enter Certificate ID or Recipient Name">
+                <button id="btn-search" class="btn-primary" style="margin-top: 0;">Search</button>
+            </div>
+        </section>
+
+        <div id="reprint-preview-container" class="reprint-preview" style="display: none;">
+            <div class="action-bar">
+                <button id="btn-print" class="btn-primary">🖨 Print Certificate</button>
+                <button id="btn-download" class="btn-small">Download PDF</button>
+            </div>
+
+            <div id="certificate-to-print" class="certificate-container print-ready">
+                <!-- Certificate content will be injected here -->
+            </div>
+        </div>
+
+        <div id="no-result" class="empty-state" style="display: none;">
+            <p>No certificate found with that information.</p>
+        </div>
+    </main>
+
+    <script src="reprint.js"></script>
+</body>
+
+</html>

@@ -903,7 +903,8 @@ body {
     font-size: 1rem;
     line-height: 1.6;
     color: #444;
-    margin-bottom: 1rem;
+    margin-bottom: 0.4rem;
+    /* Reduced from 1rem to move date higher */
     text-align: center;
     width: 100%;
 }

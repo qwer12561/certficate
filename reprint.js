@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const ordinal = getOrdinalNum(day);
 
             const bannerText = cert.type === 'completion' ? 'OF COMPLETION' : 'OF RECOGNITION';
-            const certIdDisplay = cert.type === 'completion' ? `<p class="official-cert-id">ID: ${cert.id}</p>` : '';
+            const certIdDisplay = cert.type === 'completion' ? `<p class="official-cert-id">ID: training course PDRRM DAUSUR ${cert.id}</p>` : '';
 
             certContent.className = `certificate-container design-official-recognition design-${design}`;
             certContent.innerHTML = `

@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ];
 
         const bannerText = data.type === 'completion' ? 'OF COMPLETION' : 'OF RECOGNITION';
-        const certIdDisplay = data.type === 'completion' ? `<p class="official-cert-id">ID: ${data.id}</p>` : '';
+        const certIdDisplay = data.type === 'completion' ? `<p class="official-cert-id">ID: training course PDRRM DAUSUR ${data.id}</p>` : '';
 
         return `
             <div class="certificate-container design-official-recognition design-${data.design}">

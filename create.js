@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         `).join('')}
                     </div>
-                    ${data.type === 'completion' ? `<p class="official-cert-id">ID: ${data.id || ''}</p>` : ''}
+                    ${data.type === 'completion' ? `<p class="official-cert-id">ID: training course PDRRM DAUSUR ${data.id || ''}</p>` : ''}
                 </div>
             </div>
         `;

@@ -28,23 +28,30 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="certificate-title">Certificate Title</label>
-                    <input type="text" id="certificate-title" placeholder="e.g. Certificate of Achievement" required>
+                    <label for="certificate-body">Certificate Body Context</label>
+                    <textarea id="certificate-body" rows="6"
+                        placeholder="Enter the full certificate text..."></textarea>
+                    <p class="field-hint">Tip: You can edit the entire message here.</p>
                 </div>
 
                 <div class="form-group">
-                    <label for="certificate-text">Main Content / Reason</label>
-                    <textarea id="certificate-text" rows="3" placeholder="Enter the recognition text..."></textarea>
+                    <label>Certificate Type</label>
+                    <div class="design-selector">
+                        <label class="design-option">
+                            <input type="radio" name="cert-type" value="recognition" checked>
+                            <span>Recognition</span>
+                        </label>
+                        <label class="design-option">
+                            <input type="radio" name="cert-type" value="completion">
+                            <span>Completion</span>
+                        </label>
+                    </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="issue-date">Issue Date</label>
                         <input type="date" id="issue-date" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="issuer-name">Issuer Name (Primary Signatory)</label>
-                        <input type="text" id="issuer-name" placeholder="Issued by..." required>
                     </div>
                 </div>
 
@@ -90,26 +97,7 @@
                                 <input type="text" id="sig-1-title" placeholder="Title/Position">
                             </div>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label style="font-size: 0.75rem;">Signatory 2 Name</label>
-                                <input type="text" id="sig-2-name" placeholder="Name">
-                            </div>
-                            <div class="form-group">
-                                <label style="font-size: 0.75rem;">Signatory 2 Title</label>
-                                <input type="text" id="sig-2-title" placeholder="Title/Position">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label style="font-size: 0.75rem;">Signatory 3 Name</label>
-                                <input type="text" id="sig-3-name" placeholder="Name">
-                            </div>
-                            <div class="form-group">
-                                <label style="font-size: 0.75rem;">Signatory 3 Title</label>
-                                <input type="text" id="sig-3-title" placeholder="Title/Position">
-                            </div>
-                        </div>
+
                     </div>
                 </div>
 

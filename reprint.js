@@ -53,9 +53,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function getLogoHeader() {
         return `
             <div class="cert-header-logos">
-                <img src="logo_pdrrmc.jpg" alt="PDRRMC Logo" class="logo-img">
                 <img src="logo_ocd.jpg" alt="OCD Logo" class="logo-img">
-                <img src="logo_davao.jpg" alt="Province Logo" class="logo-img">
+                <img src="logo_davao.jpg" alt="Province of Davao de Oro Logo" class="logo-img">
+                <img src="logo_pdrrmc.jpg" alt="PDRRMC Logo" class="logo-img">
             </div>
         `;
     }
@@ -70,57 +70,61 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            certContent.className = `certificate-container design-${cert.design || 'standard'} print-ready`;
+            const design = cert.design || 'standard';
+            const venue = cert.venue || 'Provincial Capitol';
+            const signatories = cert.signatories || [
+                { name: '', title: 'Training Unit Head PDRRMO Davao del sur' },
+                { name: 'HANIE B. FLORES, RSW', title: 'OIC PDRRMO' },
+                { name: 'HON. YVONE R. CAGAS', title: 'Governor PDRRMC Chairperson' }
+            ];
 
-            if (cert.design === 'official-recognition') {
-                const venue = cert.venue || 'Provincial Capitol';
-                const signatories = cert.signatories || [{ name: cert.issuer || 'Authorized', title: 'Signatory' }];
+            const d = new Date(cert.date || new Date());
+            const day = !isNaN(d.getTime()) ? d.getDate() : new Date().getDate();
+            const month = !isNaN(d.getTime()) ? d.toLocaleString('en-US', { month: 'long' }) : new Date().toLocaleString('en-US', { month: 'long' });
+            const year = !isNaN(d.getTime()) ? d.getFullYear() : new Date().getFullYear();
+            const ordinal = getOrdinalNum(day);
 
-                const d = new Date(cert.date);
-                const day = !isNaN(d.getTime()) ? d.getDate() : new Date().getDate();
-                const month = !isNaN(d.getTime()) ? d.toLocaleString('en-US', { month: 'long' }) : new Date().toLocaleString('en-US', { month: 'long' });
-                const year = !isNaN(d.getTime()) ? d.getFullYear() : new Date().getFullYear();
-                const ordinal = getOrdinalNum(day);
+            const bannerText = cert.type === 'completion' ? 'OF COMPLETION' : 'OF RECOGNITION';
+            const certIdDisplay = cert.type === 'completion' ? `<p class="official-cert-id">ID: ${cert.id}</p>` : '';
 
-                certContent.className = `certificate-container design-official-recognition design-${cert.design || 'standard'}`;
-                certContent.innerHTML = `
-                    <div class="official-header">
-                        ${getLogoHeader()}
-                    </div>
-                    <div class="official-body-container">
-                        <div class="official-left-content">
-                            <h1 class="official-main-title">CERTIFICATE</h1>
-                            <div class="official-banner">OF RECOGNITION</div>
-                            
-                            <p class="official-presented-label">PROUDLY PRESENTED TO:</p>
-                            <h2 class="official-recipient-name">${cert.recipient || 'Recipient'}</h2>
-                            <div class="official-name-underline"></div>
-                            
-                            <p class="official-body-text">
-                                In grateful acknowledgement of his distinguished and invaluable service rendered as 
-                                <strong style="text-decoration: underline;">${cert.title || 'Course'}</strong> and thereby 
-                                imparting his knowledge and contributing immeasurably to the success of the <strong>${cert.content || 'Program'}</strong>.
-                            </p>
-                            
-                            <p class="official-venue-info">Held on <strong>${dateStr}</strong> at <strong>${venue}</strong>.</p>
-                            <p class="official-date-info">Given this ${day}${ordinal} day of ${month} ${year}</p>
-                            
-                            <div class="official-footer-signatories">
-                                ${signatories.map(sig => `
-                                    <div class="official-signatory">
-                                        <div class="official-sig-line"></div>
-                                        <p class="official-sig-name">${sig.name}</p>
-                                        <p class="official-sig-title">${sig.title}</p>
-                                    </div>
-                                `).join('')}
-                            </div>
+            certContent.className = `certificate-container design-official-recognition design-${design}`;
+            certContent.innerHTML = `
+                <div class="official-header">
+                    ${getLogoHeader()}
+                </div>
+                <div class="official-body-container">
+                    <div class="official-left-content">
+                        <h1 class="official-main-title">CERTIFICATE</h1>
+                        <div class="official-banner">${bannerText}</div>
+                        
+                        <p class="official-presented-label">PROUDLY PRESENTED TO:</p>
+                        <h2 class="official-recipient-name">${cert.recipient || 'Recipient Name'}</h2>
+                        <div class="official-name-underline"></div>
+                        
+                        <p class="official-body-text">
+                            ${cert.bodyContent ? cert.bodyContent : `
+                            ${cert.bodyIntro || 'In grateful acknowledgement of his distinguished and invaluable service rendered as'} 
+                            <strong style="text-decoration: underline;">${cert.title || 'Course / Achievement Title'}</strong> and thereby 
+                            imparting his knowledge and contributing immeasurably to the success of the <strong>${cert.content || 'the program'}</strong>.
+                            `}
+                        </p>
+                        
+                        <p class="official-venue-info">Held on <strong>${dateStr}</strong> at <strong>${venue}</strong>.</p>
+                        <p class="official-date-info">Given this ${day}${ordinal} day of ${month} ${year}</p>
+                        
+                        <div class="official-footer-signatories">
+                            ${signatories.filter(s => s && s.name && s.name.trim() !== '').map(sig => `
+                                <div class="official-signatory">
+                                    <div class="official-sig-line"></div>
+                                    <p class="official-sig-name">${sig.name}</p>
+                                    <p class="official-sig-title">${sig.title}</p>
+                                </div>
+                            `).join('')}
                         </div>
+                        ${certIdDisplay}
                     </div>
-                `;
-            } else {
-                // Remove fallback to standard as all use official now
-                renderCertificate(cert, 'official-recognition');
-            }
+                </div>
+            `;
         } catch (err) {
             console.error('Failed to display certificate:', err);
             certContent.innerHTML = '<p style="padding: 2rem; color: #ff5252;">Error: Could not render this certificate. Data might be corrupted.</p>';

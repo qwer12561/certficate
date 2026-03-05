@@ -5,27 +5,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Form Inputs
     const inputRecipient = document.getElementById('recipient-name');
-    const inputTitle = document.getElementById('certificate-title');
-    const inputContent = document.getElementById('certificate-text');
-    const inputIssuer = document.getElementById('issuer-name');
     const inputDate = document.getElementById('issue-date');
     const inputVenue = document.getElementById('venue-name');
+    const inputBody = document.getElementById('certificate-body');
     const designRadios = document.querySelectorAll('input[name="design"]');
 
-    // Signatory Inputs
     const sig1Name = document.getElementById('sig-1-name');
     const sig1Title = document.getElementById('sig-1-title');
-    const sig2Name = document.getElementById('sig-2-name');
-    const sig2Title = document.getElementById('sig-2-title');
-    const sig3Name = document.getElementById('sig-3-name');
-    const sig3Title = document.getElementById('sig-3-title');
 
     // Initialize Date with today
     const today = new Date().toISOString().split('T')[0];
     inputDate.value = today;
 
-    // Design selection logic (All designs now use the unified layout)
-    designRadios.forEach(radio => {
+    // Initialize Body with default
+    inputBody.value = "In grateful acknowledgement of his distinguished and invaluable service rendered as Course / Achievement Title and thereby imparting his knowledge and contributing immeasurably to the success of the the program.";
+
+    // Design and Type listeners
+    const certTypeRadios = document.querySelectorAll('input[name="cert-type"]');
+    [...designRadios, ...certTypeRadios].forEach(radio => {
         radio.addEventListener('change', () => {
             updatePreview();
         });
@@ -34,41 +31,37 @@ document.addEventListener('DOMContentLoaded', () => {
     // Always show additional fields as all certificates now support them
     additionalFields.style.display = 'block';
 
-    // Sync Signatory 1 with Issuer name by default
-    inputIssuer.addEventListener('input', (e) => {
-        if (!sig1Name.value) {
-            sig1Name.value = e.target.value;
-        }
-        updatePreview();
-    });
+    // Always show additional fields as all certificates now support them
+    additionalFields.style.display = 'block';
 
     // Live Preview Listeners
-    [inputRecipient, inputTitle, inputContent, inputIssuer, inputDate, inputVenue,
-        sig1Name, sig1Title, sig2Name, sig2Title, sig3Name, sig3Title].forEach(el => {
+    [inputRecipient, inputDate, inputVenue, inputBody,
+        sig1Name, sig1Title].forEach(el => {
             if (el) el.addEventListener('input', updatePreview);
         });
 
     function updatePreview() {
         const recipient = inputRecipient.value || 'Recipient Name';
-        const title = inputTitle.value || 'Course / Achievement Title';
-        const content = inputContent.value || 'For their outstanding dedication and exceptional performance in all areas of the program.';
-        const issuer = inputIssuer.value || 'Authorized Signatory';
+        const bodyContent = inputBody.value || 'In grateful acknowledgement of his distinguished and invaluable service rendered as Course / Achievement Title and thereby imparting his knowledge and contributing immeasurably to the success of the the program.';
         const venue = inputVenue.value || 'Provincial Capitol';
         const dateStr = formatDate(inputDate.value);
         const designRadio = document.querySelector('input[name="design"]:checked');
         const design = designRadio ? designRadio.value : 'standard';
 
+        const typeRadio = document.querySelector('input[name="cert-type"]:checked');
+        const type = typeRadio ? typeRadio.value : 'recognition';
+
         const signatories = [
-            { name: sig1Name.value || issuer, title: sig1Title.value || 'Position' },
-            { name: sig2Name.value || '', title: sig2Title.value || '' },
-            { name: sig3Name.value || '', title: sig3Title.value || '' }
+            { name: sig1Name.value || '', title: sig1Title.value || 'Training Unit Head PDRRMO Davao del sur' },
+            { name: 'HANIE B. FLORES, RSW', title: 'OIC PDRRMO' },
+            { name: 'HON. YVONE R. CAGAS', title: 'Governor PDRRMC Chairperson' }
         ];
 
         renderUnifiedCertificate({
             design,
+            type,
             recipient,
-            title,
-            content,
+            bodyContent,
             venue,
             dateStr,
             signatories
@@ -78,9 +71,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function getLogoHeader() {
         return `
             <div class="cert-header-logos">
-                <img src="logo_pdrrmc.jpg" alt="PDRRMC Logo" class="logo-img">
                 <img src="logo_ocd.jpg" alt="OCD Logo" class="logo-img">
-                <img src="logo_davao.jpg" alt="Province Logo" class="logo-img">
+                <img src="logo_davao.jpg" alt="Province of Davao de Oro Logo" class="logo-img">
+                <img src="logo_pdrrmc.jpg" alt="PDRRMC Logo" class="logo-img">
             </div>
         `;
     }
@@ -95,6 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const year = d.getFullYear();
         const ordinal = getOrdinalNum(day);
 
+        const bannerText = data.type === 'completion' ? 'OF COMPLETION' : 'OF RECOGNITION';
+
         previewContainer.innerHTML = `
             <div class="official-header">
                 ${getLogoHeader()}
@@ -102,16 +97,14 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="official-body-container">
                 <div class="official-left-content">
                     <h1 class="official-main-title">CERTIFICATE</h1>
-                    <div class="official-banner">OF RECOGNITION</div>
+                    <div class="official-banner">${bannerText}</div>
                     
                     <p class="official-presented-label">PROUDLY PRESENTED TO:</p>
                     <h2 class="official-recipient-name">${data.recipient}</h2>
                     <div class="official-name-underline"></div>
                     
                     <p class="official-body-text">
-                        In grateful acknowledgement of his distinguished and invaluable service rendered as 
-                        <strong style="text-decoration: underline;">${data.title}</strong> and thereby 
-                        imparting his knowledge and contributing immeasurably to the success of the <strong>${data.content}</strong>.
+                        ${data.bodyContent}
                     </p>
                     
                     <p class="official-venue-info">Held on <strong>${data.dateStr}</strong> at <strong>${data.venue}</strong>.</p>
@@ -126,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         `).join('')}
                     </div>
+                    ${data.type === 'completion' ? `<p class="official-cert-id">ID: ${data.id || ''}</p>` : ''}
                 </div>
             </div>
         `;
@@ -138,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getOrdinalNum(n) {
-        return n + (n > 0 ? ['th', 'st', 'nd', 'rd'][(n > 3 && n < 21) || n % 10 > 3 ? 0 : n % 10] : '');
+        return (n > 3 && n < 21) || n % 10 > 3 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10];
     }
 
     // Form Submission
@@ -146,19 +140,31 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
 
         const design = document.querySelector('input[name="design"]:checked').value;
+        const type = document.querySelector('input[name="cert-type"]:checked').value;
+
+        // Generate formatted ID for completion type
+        let certId = Date.now().toString();
+        if (type === 'completion') {
+            const d = new Date(inputDate.value || new Date());
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            const random = Math.floor(10000 + Math.random() * 90000);
+            certId = `${day}${month}${year}-${random}`;
+        }
+
         const certData = {
-            id: Date.now().toString(),
+            id: certId,
             recipient: inputRecipient.value,
-            title: inputTitle.value,
-            content: inputContent.value,
-            issuer: inputIssuer.value,
+            bodyContent: inputBody.value,
             date: inputDate.value,
             venue: inputVenue.value || "Provincial Capitol",
             design: design,
+            type: type,
             signatories: [
-                { name: sig1Name.value || inputIssuer.value, title: sig1Title.value || 'Position' },
-                { name: sig2Name.value || '', title: sig2Title.value || '' },
-                { name: sig3Name.value || '', title: sig3Title.value || '' }
+                { name: sig1Name.value || '', title: sig1Title.value || 'Training Unit Head PDRRMO Davao del sur' },
+                { name: 'HANIE B. FLORES, RSW', title: 'OIC PDRRMO' },
+                { name: 'HON. YVONE R. CAGAS', title: 'Governor PDRRMC Chairperson' }
             ],
             issuedAt: new Date().toISOString()
         };

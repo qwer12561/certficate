@@ -128,31 +128,38 @@ document.addEventListener('DOMContentLoaded', () => {
         const fullDateStr = formatDate(data.date);
 
         const sigs = data.signatories || [
-            { name: data.issuer || 'Authorized Signatory', title: 'Position' }
+            { name: '', title: 'Training Unit Head PDRRMO Davao del sur' },
+            { name: 'HANIE B. FLORES, RSW', title: 'OIC PDRRMO' },
+            { name: 'HON. YVONE R. CAGAS', title: 'Governor PDRRMC Chairperson' }
         ];
+
+        const bannerText = data.type === 'completion' ? 'OF COMPLETION' : 'OF RECOGNITION';
+        const certIdDisplay = data.type === 'completion' ? `<p class="official-cert-id">ID: ${data.id}</p>` : '';
 
         return `
             <div class="certificate-container design-official-recognition design-${data.design}">
                 <div class="official-header">
                     <div class="cert-header-logos">
-                        <img src="logo_pdrrmc.jpg" alt="PDRRMC Logo" class="logo-img">
                         <img src="logo_ocd.jpg" alt="OCD Logo" class="logo-img">
-                        <img src="logo_davao.jpg" alt="Province Logo" class="logo-img">
+                        <img src="logo_davao.jpg" alt="Province of Davao de Oro Logo" class="logo-img">
+                        <img src="logo_pdrrmc.jpg" alt="PDRRMC Logo" class="logo-img">
                     </div>
                 </div>
                 <div class="official-body-container">
-                    <div class="official-left-content" style="flex: 1; padding: 5rem 6rem; background: #fff;">
+                    <div class="official-left-content">
                         <h1 class="official-main-title">CERTIFICATE</h1>
-                        <div class="official-banner">OF RECOGNITION</div>
+                        <div class="official-banner">${bannerText}</div>
                         
                         <p class="official-presented-label">PROUDLY PRESENTED TO:</p>
                         <h2 class="official-recipient-name">${data.recipient}</h2>
                         <div class="official-name-underline"></div>
                         
                         <p class="official-body-text">
-                            In grateful acknowledgement of his distinguished and invaluable service rendered as 
-                            <strong style="text-decoration: underline;">${data.title}</strong> and thereby 
-                            imparting his knowledge and contributing immeasurably to the success of the <strong>${data.content}</strong>.
+                            ${data.bodyContent ? data.bodyContent : `
+                            ${data.bodyIntro || 'In grateful acknowledgement of his distinguished and invaluable service rendered as'} 
+                            <strong style="text-decoration: underline;">${data.title || 'Course / Achievement Title'}</strong> and thereby 
+                            imparting his knowledge and contributing immeasurably to the success of the <strong>${data.content || 'the program'}</strong>.
+                            `}
                         </p>
                         
                         <p class="official-venue-info">Held on <strong>${fullDateStr}</strong> at <strong>${data.venue || 'Provincial Capitol'}</strong>.</p>
@@ -167,6 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 </div>
                             `).join('')}
                         </div>
+                        ${certIdDisplay}
                     </div>
                 </div>
             </div>
@@ -180,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getOrdinalNum(n) {
-        return n + (n > 0 ? ['th', 'st', 'nd', 'rd'][(n > 3 && n < 21) || n % 10 > 3 ? 0 : n % 10] : '');
+        return (n > 3 && n < 21) || n % 10 > 3 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10];
     }
 
     // Filter and Sort logic

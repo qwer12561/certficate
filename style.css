@@ -478,6 +478,7 @@ body {
 }
 
 /* Themes for the Unified Official Layout */
+/* Themes for the Unified Official Layout */
 .design-modern-blue .official-recipient-name {
     color: var(--cert-blue);
 }
@@ -779,7 +780,7 @@ body {
     padding: 0 !important;
     display: flex !important;
     flex-direction: column !important;
-    background: var(--cert-bg) !important;
+    background-color: var(--cert-bg) !important;
     border: none !important;
     color: var(--cert-text-dark) !important;
     position: relative;
@@ -954,4 +955,14 @@ body {
     .menu-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* Modern Blue Background Frame Fix */
+.certificate-container.design-modern-blue {
+    background-image: url('frame.png') !important;
+    background-size: 100% 100% !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-origin: border-box !important;
+    background-clip: border-box !important;
 }

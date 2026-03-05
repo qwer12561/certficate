@@ -789,9 +789,24 @@ body {
 
 .official-header {
     width: 100%;
-    padding: 1rem 3rem 0;
+    padding: 1rem 3rem 0.5rem;
     display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
+}
+
+.design-official-recognition .official-header .cert-header-logos {
+    margin-bottom: 0.5rem;
+}
+
+.official-header-text {
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #555;
+    text-transform: uppercase;
 }
 
 .official-body-container {
@@ -803,12 +818,12 @@ body {
 
 .official-left-content {
     flex: 1;
-    /* Now full width */
-    padding: 1rem 4.5rem 5rem;
-    text-align: left;
+    /* Now full width and centered */
+    padding: 1rem 3rem 5rem;
+    text-align: center;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     height: 100%;
     z-index: 2;
     position: relative;
@@ -873,15 +888,15 @@ body {
     color: var(--cert-blue);
     margin: 0.4rem 0 0.2rem;
     text-transform: uppercase;
-    text-align: left;
+    text-align: center;
     width: 100%;
 }
 
 .official-name-underline {
-    width: 100%;
+    width: 80%;
     height: 2px;
     background: var(--cert-brown);
-    margin: 0 0 1.2rem;
+    margin: 0 auto 1.2rem;
 }
 
 .official-body-text {
@@ -889,7 +904,7 @@ body {
     line-height: 1.6;
     color: #444;
     margin-bottom: 1rem;
-    text-align: left;
+    text-align: center;
     width: 100%;
 }
 

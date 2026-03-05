@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="cert-card-body">
                     <h3 class="cert-card-recipient">${cert.recipient || 'Unnamed'}</h3>
-                    <p class="cert-card-title">${cert.title || 'Untitled Certificate'}</p>
+                    <p class="cert-card-title">${cert.type === 'completion' ? 'Certificate of Completion' : 'Certificate of Recognition'}</p>
                 </div>
                 <div class="cert-card-actions">
                     <button class="btn-icon" title="View Certificate" onclick="openPreviewModal('${cert.id}')">
@@ -143,6 +143,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         <img src="logo_ocd.jpg" alt="OCD Logo" class="logo-img">
                         <img src="logo_davao.jpg" alt="Province of Davao de Oro Logo" class="logo-img">
                         <img src="logo_pdrrmc.jpg" alt="PDRRMC Logo" class="logo-img">
+                    </div>
+                    <div class="official-header-text">
+                        Office of Civil Defense XI<br>
+                        Province of Davao del Sur<br>
+                        Provincial Disaster Risk Reduction and Management Office
                     </div>
                 </div>
                 <div class="official-body-container">

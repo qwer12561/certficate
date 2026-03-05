@@ -57,6 +57,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 <img src="logo_davao.jpg" alt="Province of Davao de Oro Logo" class="logo-img">
                 <img src="logo_pdrrmc.jpg" alt="PDRRMC Logo" class="logo-img">
             </div>
+            <div class="official-header-text">
+                Office of Civil Defense XI<br>
+                Province of Davao del Sur<br>
+                Provincial Disaster Risk Reduction and Management Office
+            </div>
         `;
     }
 

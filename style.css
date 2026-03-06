@@ -19,6 +19,9 @@
     /* The blue from 'ROEL' */
     --cert-green: #2e7d32;
     --cert-text-dark: #333333;
+
+    /* Cross-browser color scheme */
+    color-scheme: dark;
 }
 
 * {
@@ -101,9 +104,14 @@ body {
     padding: 2.5rem;
     text-decoration: none;
     transition: var(--transition);
+    -webkit-backdrop-filter: blur(10px);
+    /* Safari */
     backdrop-filter: blur(10px);
+    display: -webkit-flex;
     display: flex;
+    -webkit-flex-direction: column;
     flex-direction: column;
+    -webkit-align-items: center;
     align-items: center;
     gap: 1.5rem;
     box-shadow: 0 10px 30px -15px rgba(2, 12, 27, 0.7);
@@ -178,6 +186,8 @@ body {
     padding: 2.5rem;
     border-radius: 16px;
     border: 1px solid var(--glass-border);
+    -webkit-backdrop-filter: blur(10px);
+    /* Safari */
     backdrop-filter: blur(10px);
 }
 
@@ -196,6 +206,10 @@ body {
 
 .preview-section::-webkit-scrollbar {
     width: 6px;
+}
+
+.preview-section::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 .preview-section::-webkit-scrollbar-thumb {
@@ -245,6 +259,13 @@ body {
     background: rgba(10, 25, 47, 0.5);
     color: var(--text-primary);
     font-family: inherit;
+    font-size: 1rem;
+    /* Prevents iOS auto-zoom (Safari zooms on <16px inputs) */
+    -webkit-appearance: none;
+    /* Remove Safari default styling */
+    -moz-appearance: none;
+    /* Remove Firefox default styling */
+    appearance: none;
     transition: var(--transition);
 }
 
@@ -315,23 +336,32 @@ body {
 /* Certificate Preview Container */
 .certificate-container {
     width: 1000px;
-    /* Full visual size */
     min-width: 1000px;
     aspect-ratio: 1.414/1;
     /* A4 aspect ratio */
-    background: white;
-    /* Clean white background */
+    /* aspect-ratio fallback for Safari < 15 */
+    height: 707px;
+    background-color: white;
     border: 1px solid #ddd;
     color: var(--cert-text-dark);
     padding: 40px;
-    /* Slightly reduced padding to fit more content */
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
     overflow: hidden;
+    position: relative;
+    -webkit-transform-origin: top center;
     transform-origin: top center;
+    -webkit-transform: scale(0.75);
     transform: scale(0.75);
-    /* Average visual size */
+    -webkit-transition: var(--transition);
     transition: var(--transition);
     margin: 0 auto 2rem;
+}
+
+/* Override fallback height when aspect-ratio is supported */
+@supports (aspect-ratio: 1) {
+    .certificate-container {
+        height: auto;
+    }
 }
 
 /* Logo Header Styles */
@@ -485,18 +515,76 @@ body {
 
 /* Removed sidebar background overrides */
 
-.design-elegant-gold .official-recipient-name,
+/* ── Elegant Gold Theme ──────────────────────────────────────── */
 .design-elegant-gold .official-main-title {
-    color: #a67c00;
+    color: #8b6914;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
 }
 
-.design-elegant-gold .official-banner,
-.design-elegant-gold .official-right-sidebar {
-    background: #a67c00;
+.design-elegant-gold .official-recipient-name {
+    color: #1a2d5a;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.design-elegant-gold .official-banner {
+    background: linear-gradient(90deg, #1a2d5a 0%, #243872 100%);
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.25);
 }
 
 .design-elegant-gold .official-banner::after {
-    border-left-color: #a67c00;
+    border-left-color: #243872;
+}
+
+.design-elegant-gold .official-right-sidebar {
+    background: linear-gradient(180deg, #1a2d5a 0%, #243872 100%);
+}
+
+.design-elegant-gold .official-presented-label {
+    color: #1a2d5a;
+    font-weight: 800;
+    letter-spacing: 3px;
+}
+
+.design-elegant-gold .official-name-underline {
+    background: linear-gradient(90deg, #c8a84b 0%, #f0d080 50%, #c8a84b 100%);
+    height: 3px;
+}
+
+.design-elegant-gold .official-header-text {
+    color: #1a2d5a;
+    font-weight: 800;
+}
+
+.design-elegant-gold .official-body-text {
+    color: #2c2c2c;
+}
+
+.design-elegant-gold .official-venue-info,
+.design-elegant-gold .official-date-info {
+    color: #1a2d5a;
+    font-weight: 600;
+}
+
+.design-elegant-gold .official-sig-line {
+    border-top-color: #c8a84b;
+    border-top-width: 2px;
+}
+
+.design-elegant-gold .official-sig-name {
+    color: #1a2d5a;
+}
+
+.design-elegant-gold .official-sig-title {
+    color: #555;
+}
+
+.design-elegant-gold .cert-header-logos {
+    border-bottom: none;
+}
+
+.design-elegant-gold .logo-img {
+    border-color: rgba(200, 168, 75, 0.5);
+    box-shadow: 0 2px 10px rgba(200, 168, 75, 0.3);
 }
 
 .design-classic-brown .official-recipient-name {
@@ -526,6 +614,10 @@ body {
     border: 1px solid var(--glass-border);
     background: rgba(10, 25, 47, 0.5);
     color: var(--text-primary);
+    font-size: 1rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
 .sort-box select {
@@ -534,6 +626,11 @@ body {
     border: 1px solid var(--glass-border);
     background: rgba(10, 25, 47, 0.5);
     color: var(--text-primary);
+    font-size: 1rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    cursor: pointer;
 }
 
 .certificates-grid {
@@ -653,8 +750,12 @@ body {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.85);
+    -webkit-backdrop-filter: blur(10px);
+    /* Safari */
     backdrop-filter: blur(10px);
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    /* Smooth scroll on iOS Safari */
     padding: 2.5vh 2.5vw;
 }
 
@@ -771,15 +872,33 @@ body {
 
 .recipients-list {
     list-style: none;
+    display: -webkit-flex;
     display: flex;
+    -webkit-flex-direction: column;
     flex-direction: column;
     gap: 0.4rem;
     margin-top: 0.6rem;
     max-height: 200px;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 0;
+    /* Firefox */
     scrollbar-width: thin;
     scrollbar-color: var(--accent-color) transparent;
+}
+
+/* Chrome, Safari, Edge */
+.recipients-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.recipients-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.recipients-list::-webkit-scrollbar-thumb {
+    background-color: var(--accent-color);
+    border-radius: 10px;
 }
 
 .recipient-tag {
@@ -875,13 +994,25 @@ body {
     }
 
     .certificate-container.design-elegant-gold {
-        background-image: url('frame1.png') !important;
+        background-image: url('kits1.png') !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
 
     .cert-outer-border {
         border-width: 12px !important;
+    }
+
+    /* Ensure absolutely-positioned background img prints correctly */
+    .certificate-container>img[alt=""] {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        display: block !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 }
 
@@ -1084,11 +1215,37 @@ body {
 }
 
 /* Modern Blue Background Frame Fix */
-.certificate-container.design-modern-blue {
+.certificate-container.design-modern-blue,
+.certificate-container.design-official-recognition,
+.certificate-container.design-classic-brown {
     background-image: url('frame.png') !important;
+    background-size: 100% 100% !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+}
+
+/* Elegant Gold Background Fix */
+.certificate-container.design-elegant-gold {
+    background-image: url('kits1.png') !important;
     background-size: 100% 100% !important;
     background-repeat: no-repeat !important;
     background-position: center !important;
     background-origin: border-box !important;
     background-clip: border-box !important;
+}
+
+/* Elegant Gold ::before pseudo-element as CSS-only bulletproof fallback */
+.certificate-container.design-elegant-gold::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('kits1.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 0;
+    pointer-events: none;
 }

@@ -137,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderUnifiedCertificate(data) {
+        const bgImage = data.design === 'elegant-gold' ? 'kits1.png' : 'frame.png';
         previewContainer.className = `certificate-container design-official-recognition design-${data.design}`;
 
         const d = new Date(inputDate.value || new Date());
@@ -148,10 +149,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const bannerText = data.type === 'completion' ? 'OF COMPLETION' : 'OF RECOGNITION';
 
         previewContainer.innerHTML = `
-            <div class="official-header">
+            <img src="${bgImage}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;display:block;" />
+            <div class="official-header" style="position:relative;z-index:1;">
                 ${getLogoHeader()}
             </div>
-            <div class="official-body-container">
+            <div class="official-body-container" style="position:relative;z-index:1;">
                 <div class="official-left-content">
                     <h1 class="official-main-title">CERTIFICATE</h1>
                     <div class="official-banner">${bannerText}</div>

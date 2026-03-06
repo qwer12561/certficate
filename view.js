@@ -170,9 +170,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const bannerText = data.type === 'completion' ? 'OF COMPLETION' : 'OF RECOGNITION';
         const certIdDisplay = data.type === 'completion' ? `<p class="official-cert-id">ID: training course PDRRM DAUSUR ${data.id}</p>` : '';
 
+        const bgImage = data.design === 'elegant-gold' ? 'kits1.png' : 'frame.png';
+
         return `
-            <div class="certificate-container design-official-recognition design-${data.design}">
-                <div class="official-header">
+        <div class="certificate-container design-official-recognition design-${data.design}">
+                <img src="${bgImage}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;display:block;" />
+                <div class="official-header" style="position:relative;z-index:1;">
                     <div class="cert-header-logos">
                         <img src="logo_ocd.jpg" alt="OCD Logo" class="logo-img">
                         <img src="logo_davao.jpg" alt="Province of Davao de Oro Logo" class="logo-img">
@@ -184,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         Provincial Disaster Risk Reduction and Management Office
                     </div>
                 </div>
-                <div class="official-body-container">
+                <div class="official-body-container" style="position:relative;z-index:1;">
                     <div class="official-left-content">
                         <h1 class="official-main-title">CERTIFICATE</h1>
                         <div class="official-banner">${bannerText}</div>

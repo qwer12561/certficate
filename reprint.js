@@ -97,12 +97,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const bannerText = cert.type === 'completion' ? 'OF COMPLETION' : 'OF RECOGNITION';
             const certIdDisplay = cert.type === 'completion' ? `<p class="official-cert-id">ID: training course PDRRM DAUSUR ${cert.id}</p>` : '';
 
+            const bgImage = design === 'elegant-gold' ? 'kits1.png' : 'frame.png';
             certContent.className = `certificate-container design-official-recognition design-${design}`;
+            certContent.style.backgroundImage = '';
             certContent.innerHTML = `
-                <div class="official-header">
+                <img src="${bgImage}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;display:block;" />
+                <div class="official-header" style="position:relative;z-index:1;">
                     ${getLogoHeader()}
                 </div>
-                <div class="official-body-container">
+                <div class="official-body-container" style="position:relative;z-index:1;">
                     <div class="official-left-content">
                         <h1 class="official-main-title">CERTIFICATE</h1>
                         <div class="official-banner">${bannerText}</div>

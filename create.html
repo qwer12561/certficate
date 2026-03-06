@@ -23,8 +23,12 @@
 
             <form id="certificate-form" class="professional-form">
                 <div class="form-group">
-                    <label for="recipient-name">Recipient Name</label>
-                    <input type="text" id="recipient-name" placeholder="Enter full name" required>
+                    <label>Recipients <span id="recipient-count" class="recipient-count"></span></label>
+                    <div class="recipient-input-row">
+                        <input type="text" id="recipient-name" placeholder="Type a name and press Add or Enter">
+                        <button type="button" id="btn-add-recipient" class="btn-add">+ Add</button>
+                    </div>
+                    <ul id="recipients-list" class="recipients-list"></ul>
                 </div>
 
                 <div class="form-group">
@@ -101,7 +105,8 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn-primary" id="btn-issue">Issue & Save Certificate</button>
+                <button type="submit" class="btn-primary" id="btn-issue">🎓 Issue Certificates for All
+                    Recipients</button>
             </form>
         </div>
 

@@ -11,16 +11,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let certificates = [];
 
-    // Load certificates
-    function loadCertificates() {
+    // ── Load certificates from PHP API ───────────────────────────────
+    async function loadCertificates() {
+        listContainer.innerHTML = `
+            <div class="empty-state">
+                <h3>⏳ Loading certificates...</h3>
+                <p>Fetching from database...</p>
+            </div>
+        `;
         try {
-            certificates = JSON.parse(localStorage.getItem('certificates') || '[]');
-            certificates = certificates.filter(c => c && c.recipient);
-            renderCertificates(filterAndSort());
-        } catch (e) {
-            console.error('Failed to load certificates:', e);
-            renderCertificates([]);
+            const response = await fetch('api/certificates.php');
+            const result = await response.json();
+
+            if (result.success) {
+                certificates = result.data.filter(c => c && c.recipient);
+                renderCertificates(filterAndSort());
+            } else {
+                showError('Failed to load certificates: ' + (result.error || 'Unknown error'));
+            }
+        } catch (err) {
+            console.error('Failed to load certificates:', err);
+            showError('Could not connect to the server. Make sure PHP is running.');
         }
+    }
+
+    function showError(msg) {
+        listContainer.innerHTML = `
+            <div class="empty-state">
+                <h3>❌ Error</h3>
+                <p>${msg}</p>
+            </div>
+        `;
     }
 
     function renderCertificates(data) {
@@ -84,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         modalContent.innerHTML = renderCertificateHTML(cert);
         modal.style.display = 'block';
-        document.body.style.overflow = 'hidden'; // Prevent scroll
+        document.body.style.overflow = 'hidden';
 
         printBtn.onclick = () => {
             window.location.href = `reprint.html?id=${id}&print=true`;
@@ -109,11 +130,25 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = `reprint.html?id=${id}`;
     };
 
-    window.deleteCertificate = (id) => {
-        if (confirm('Are you sure you want to delete this certificate?')) {
-            certificates = certificates.filter(c => c.id !== id);
-            localStorage.setItem('certificates', JSON.stringify(certificates));
-            renderCertificates(filterAndSort());
+    // ── Delete via API ────────────────────────────────────────────────
+    window.deleteCertificate = async (id) => {
+        if (!confirm('Are you sure you want to delete this certificate?')) return;
+
+        try {
+            const response = await fetch(`api/certificates.php?id=${encodeURIComponent(id)}`, {
+                method: 'DELETE'
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                certificates = certificates.filter(c => c.id !== id);
+                renderCertificates(filterAndSort());
+            } else {
+                alert('❌ Failed to delete: ' + (result.error || 'Unknown error'));
+            }
+        } catch (err) {
+            console.error('Delete error:', err);
+            alert('❌ Could not connect to the server.');
         }
     };
 
@@ -124,7 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const year = d.getFullYear();
         const ordinal = getOrdinalNum(day);
 
-        // Manual date string to match unified format
         const fullDateStr = formatDate(data.date);
 
         const sigs = data.signatories || [
@@ -196,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return (n > 3 && n < 21) || n % 10 > 3 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10];
     }
 
-    // Filter and Sort logic
+    // ── Filter and Sort ───────────────────────────────────────────────
     function filterAndSort() {
         let filtered = [...certificates];
         const search = searchInput.value.toLowerCase();

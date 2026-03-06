@@ -26,18 +26,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function searchCertificate(query) {
+    // ── Search via PHP API ────────────────────────────────────────────
+    async function searchCertificate(query) {
         if (!query) return;
 
-        try {
-            const certificates = JSON.parse(localStorage.getItem('certificates') || '[]');
-            const cert = certificates.find(c =>
-                (c.id && c.id === query) ||
-                (c.recipient && c.recipient.toLowerCase() === query.toLowerCase())
-            );
+        searchBtn.disabled = true;
+        searchBtn.textContent = '⏳ Searching...';
 
-            if (cert) {
-                displayCertificate(cert);
+        try {
+            const response = await fetch(`api/certificates.php?query=${encodeURIComponent(query)}`);
+            const result = await response.json();
+
+            if (result.success && result.data && result.data.length > 0) {
+                displayCertificate(result.data[0]);
                 noResult.style.display = 'none';
                 previewContainer.style.display = 'block';
             } else {
@@ -47,6 +48,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) {
             console.error('Error searching for certificate:', e);
             noResult.style.display = 'block';
+            previewContainer.style.display = 'none';
+        } finally {
+            searchBtn.disabled = false;
+            searchBtn.textContent = '🔍 Search';
         }
     }
 

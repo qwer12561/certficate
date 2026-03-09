@@ -1,0 +1,22 @@
+{
+    "name": "Certificate Management System",
+    "short_name": "CertAdmin",
+    "description": "Secure & Professional Certificate Administration",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#0a192f",
+    "theme_color": "#0a192f",
+    "icons": [
+        {
+            "src": "logo_davao.jpg",
+            "sizes": "192x192",
+            "type": "image/jpeg"
+        },
+        {
+            "src": "logo_davao.jpg",
+            "sizes": "512x512",
+            "type": "image/jpeg",
+            "purpose": "any maskable"
+        }
+    ]
+}

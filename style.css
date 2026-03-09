@@ -1236,16 +1236,125 @@ body {
     .preview-section {
         position: static;
         width: 100%;
+        padding: 1rem 0;
+        overflow-x: hidden;
+    }
+
+    .certificate-container {
+        margin: 0 !important;
+        transform-origin: top left !important;
+        transform: scale(0.85) !important;
+        margin-bottom: -106px !important;
+    }
+}
+
+@media (max-width: 900px) {
+    .certificate-container {
+        transform: scale(0.75) !important;
+        margin-bottom: -176px !important;
     }
 }
 
 @media (max-width: 768px) {
     .title {
         font-size: 2.2rem;
+        text-align: center;
+    }
+
+    .header {
+        text-align: center !important;
+        margin-bottom: 2rem !important;
+    }
+
+    .container {
+        padding: 1rem;
+        max-width: 100%;
+        margin-top: 1rem;
+    }
+
+    .menu-card {
+        padding: 1.5rem;
+        gap: 1rem;
+    }
+
+    .card-icon {
+        font-size: 2.5rem;
+    }
+
+    .form-section {
+        padding: 1.5rem;
     }
 
     .menu-grid {
         grid-template-columns: 1fr;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .design-selector {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .recipient-input-row {
+        flex-direction: column;
+    }
+
+    .btn-add {
+        width: 100%;
+    }
+
+    .modal-content {
+        padding: 1rem;
+    }
+
+    .search-card {
+        flex-direction: column;
+        padding: 1.5rem;
+    }
+
+    .action-bar {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .action-bar button {
+        width: 100%;
+    }
+
+    .certificate-container {
+        transform: scale(0.65) !important;
+        margin-bottom: -247px !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .certificate-container {
+        transform: scale(0.50) !important;
+        margin-bottom: -353px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .certificate-container {
+        transform: scale(0.40) !important;
+        margin-bottom: -424px !important;
+    }
+}
+
+@media (max-width: 400px) {
+    .certificate-container {
+        transform: scale(0.33) !important;
+        margin-bottom: -473px !important;
+    }
+}
+
+@media (max-width: 350px) {
+    .certificate-container {
+        transform: scale(0.28) !important;
+        margin-bottom: -509px !important;
     }
 }
 

@@ -594,6 +594,15 @@ body {
     text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 0 8px rgba(255, 255, 255, 0.9);
 }
 
+.design-elegant-gold .official-cert-id {
+    color: #fff;
+    z-index: 20;
+    font-size: 0.75rem;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 1), -1px -1px 4px rgba(0, 0, 0, 0.8);
+    left: 2.5rem;
+    bottom: 2.5rem;
+}
+
 .design-elegant-gold .cert-header-logos {
     border-bottom: none;
 }
@@ -605,6 +614,15 @@ body {
 
 .design-classic-brown .official-recipient-name {
     color: var(--cert-brown);
+}
+
+.design-classic-brown .official-cert-id {
+    color: #fff;
+    z-index: 20;
+    font-size: 0.75rem;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 1), -1px -1px 4px rgba(0, 0, 0, 0.8);
+    left: 2.5rem;
+    bottom: 2.5rem;
 }
 
 /* View Module Styles */
@@ -1111,11 +1129,11 @@ body {
 
 .official-cert-id {
     position: absolute;
-    bottom: 0.8rem;
+    bottom: 1rem;
     left: 4.5rem;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     font-weight: 700;
-    color: #888;
+    color: #666;
     letter-spacing: 0.5px;
     margin: 0;
     z-index: 10;
@@ -1181,6 +1199,7 @@ body {
     display: flex;
     justify-content: space-between;
     margin-top: auto;
+    padding-top: 2.5rem;
     gap: 2rem;
     width: 100%;
 }
@@ -1249,21 +1268,4 @@ body {
     background-position: center !important;
     background-origin: border-box !important;
     background-clip: border-box !important;
-
-    /* Robust CSS fallbacks for Gold Frame */
-    border: 14px solid #8b6914 !important;
-    background-color: var(--cert-bg) !important;
-}
-
-/* Elegant Gold ::before pseudo-element for inner styling */
-.certificate-container.design-elegant-gold::before {
-    content: '';
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    right: 8px;
-    bottom: 8px;
-    border: 2px solid #c8a84b;
-    z-index: 10;
-    pointer-events: none;
 }

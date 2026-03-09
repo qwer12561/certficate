@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderUnifiedCertificate(data) {
-        const bgImage = data.design === 'elegant-gold' ? 'kits1.png' : 'frame.png';
+        const bgImage = data.design === 'elegant-gold' ? 'elegant_gold_bg.png?v=2' : 'frame.png';
         previewContainer.className = `certificate-container design-official-recognition design-${data.design}`;
 
         const d = new Date(inputDate.value || new Date());

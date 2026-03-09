@@ -508,12 +508,23 @@ body {
 }
 
 /* Themes for the Unified Official Layout */
-/* Themes for the Unified Official Layout */
 .design-modern-blue .official-recipient-name {
     color: var(--cert-blue);
 }
 
-/* Removed sidebar background overrides */
+.design-modern-blue .official-sig-line {
+    box-shadow: 0 -1px 3px rgba(255, 255, 255, 0.8), 0 1px 3px rgba(255, 255, 255, 0.8);
+}
+
+.design-modern-blue .official-sig-name {
+    font-weight: 800;
+    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 0 8px rgba(255, 255, 255, 0.9);
+}
+
+.design-modern-blue .official-sig-title {
+    font-weight: 700;
+    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 0 8px rgba(255, 255, 255, 0.9);
+}
 
 /* ── Elegant Gold Theme ──────────────────────────────────────── */
 .design-elegant-gold .official-main-title {
@@ -568,14 +579,19 @@ body {
 .design-elegant-gold .official-sig-line {
     border-top-color: #c8a84b;
     border-top-width: 2px;
+    box-shadow: 0 -1px 3px rgba(255, 255, 255, 0.8), 0 1px 3px rgba(255, 255, 255, 0.8);
 }
 
 .design-elegant-gold .official-sig-name {
     color: #1a2d5a;
+    font-weight: 800;
+    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 0 8px rgba(255, 255, 255, 0.9);
 }
 
 .design-elegant-gold .official-sig-title {
-    color: #555;
+    color: #222;
+    font-weight: 700;
+    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 0 8px rgba(255, 255, 255, 0.9);
 }
 
 .design-elegant-gold .cert-header-logos {
@@ -994,7 +1010,7 @@ body {
     }
 
     .certificate-container.design-elegant-gold {
-        background-image: url('kits1.png') !important;
+        background-image: url('elegant_gold_bg.png?v=2') !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
@@ -1225,27 +1241,29 @@ body {
 }
 
 /* Elegant Gold Background Fix */
+/* Elegant Gold Background Fix */
 .certificate-container.design-elegant-gold {
-    background-image: url('kits1.png') !important;
+    background-image: url('elegant_gold_bg.png?v=2') !important;
     background-size: 100% 100% !important;
     background-repeat: no-repeat !important;
     background-position: center !important;
     background-origin: border-box !important;
     background-clip: border-box !important;
+
+    /* Robust CSS fallbacks for Gold Frame */
+    border: 14px solid #8b6914 !important;
+    background-color: var(--cert-bg) !important;
 }
 
-/* Elegant Gold ::before pseudo-element as CSS-only bulletproof fallback */
+/* Elegant Gold ::before pseudo-element for inner styling */
 .certificate-container.design-elegant-gold::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: url('kits1.png');
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    background-position: center;
-    z-index: 0;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    border: 2px solid #c8a84b;
+    z-index: 10;
     pointer-events: none;
 }

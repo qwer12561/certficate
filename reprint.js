@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const bannerText = cert.type === 'completion' ? 'OF COMPLETION' : 'OF RECOGNITION';
             const certIdDisplay = cert.type === 'completion' ? `<p class="official-cert-id">ID: training course PDRRM DAUSUR ${cert.id}</p>` : '';
 
-            const bgImage = design === 'elegant-gold' ? 'kits1.png' : 'frame.png';
+            const bgImage = design === 'elegant-gold' ? 'elegant_gold_bg.png?v=2' : 'frame.png';
             certContent.className = `certificate-container design-official-recognition design-${design}`;
             certContent.style.backgroundImage = '';
             certContent.innerHTML = `

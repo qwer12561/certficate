@@ -14,7 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap"
         rel="stylesheet">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=107">
 </head>
 
 <body>
@@ -25,7 +25,7 @@
         <div class="form-section">
             <header class="header" style="text-align: left; margin-bottom: 2rem;">
                 <a href="index.html" class="back-link">← Back to Menu</a>
-                <h1 class="title" style="font-size: 2.5rem;">Create Certificate</h1>
+                <h1 class="title" style="font-size: 2.5rem; border-bottom: 2px solid #ff5252;">Create Certificate</h1>
             </header>
 
             <form id="certificate-form" class="professional-form">
@@ -78,11 +78,30 @@
                             <span>Elegant Gold</span>
                         </label>
                         <label class="design-option">
-                            <input type="radio" name="design" value="classic-brown">
-                            <span>Classic Brown</span>
+                            <input type="radio" name="design" value="custom">
+                            <span>Select Custom Design</span>
                         </label>
-
                     </div>
+                </div>
+
+                <div class="form-group"
+                    style="margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid var(--accent-color);">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <label style="color: #fff; font-size: 1.2rem; font-weight: 800;">🖼️ SELECT CUSTOM
+                            DESIGN</label>
+                        <button type="button" id="btn-upload-trigger" class="btn-add"
+                            style="background: var(--accent-color); color: var(--primary-color);">+ Upload New</button>
+                    </div>
+
+                    <input type="file" id="template-upload" style="display: none;" accept="image/*">
+
+                    <div id="template-gallery" class="template-gallery"
+                        style="margin-top: 0.5rem; border: 2px solid var(--glass-border); background: rgba(0,0,0,0.2);">
+                        <div class="loading-templates">Loading your gallery...</div>
+                    </div>
+                    <p class="field-hint" style="margin-top: 0.5rem; color: var(--accent-color);">Tip: Pick a picture
+                        above to change the certificate background.</p>
                 </div>
 
                 <div id="additional-fields"
@@ -148,7 +167,7 @@
         </div>
     </main>
 
-    <script src="create.js?v=2"></script>
+    <script src="create.js?v=107"></script>
 </body>
 
 </html>

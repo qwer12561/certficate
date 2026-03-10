@@ -48,10 +48,11 @@ if ($method === 'GET') {
         // Decode signatories JSON column back to array
         $row['signatories'] = $row['signatories'] ? json_decode($row['signatories'], true) : [];
         // Map snake_case columns to camelCase for JS compatibility
-        $row['bodyContent'] = $row['body_content'];
-        $row['issuedAt']    = $row['issued_at'];
-        $row['qrData']      = $row['qr_data'];
-        unset($row['body_content'], $row['issued_at'], $row['qr_data']);
+        $row['bodyContent']  = $row['body_content'];
+        $row['templatePath'] = $row['template_path'];
+        $row['issuedAt']     = $row['issued_at'];
+        $row['qrData']       = $row['qr_data'];
+        unset($row['body_content'], $row['template_path'], $row['issued_at'], $row['qr_data']);
         $rows[] = $row;
     }
 
@@ -83,25 +84,27 @@ if ($method === 'POST') {
         $type         = $db->real_escape_string($cert['type']         ?? 'recognition');
         $signatories  = $db->real_escape_string(json_encode($cert['signatories'] ?? []));
         $issuedAt     = $db->real_escape_string($cert['issuedAt']     ?? date('Y-m-d H:i:s'));
+        $templatePath = $db->real_escape_string($cert['templatePath'] ?? '');
         $qrData       = $db->real_escape_string($cert['qrData']       ?? '');
 
         // Validate date format
         $dateValue = $date ? "'" . $date . "'" : 'NULL';
 
         $sql = "INSERT INTO certificates
-                    (id, recipient, body_content, date, venue, design, type, signatories, issued_at, qr_data)
+                    (id, recipient, body_content, date, venue, design, template_path, type, signatories, issued_at, qr_data)
                 VALUES
-                    ('$id', '$recipient', '$bodyContent', $dateValue, '$venue', '$design', '$type', '$signatories', '$issuedAt', '$qrData')
+                    ('$id', '$recipient', '$bodyContent', $dateValue, '$venue', '$design', '$templatePath', '$type', '$signatories', '$issuedAt', '$qrData')
                 ON DUPLICATE KEY UPDATE
-                    recipient    = VALUES(recipient),
-                    body_content = VALUES(body_content),
-                    date         = VALUES(date),
-                    venue        = VALUES(venue),
-                    design       = VALUES(design),
-                    type         = VALUES(type),
-                    signatories  = VALUES(signatories),
-                    issued_at    = VALUES(issued_at),
-                    qr_data      = VALUES(qr_data)";
+                    recipient     = VALUES(recipient),
+                    body_content  = VALUES(body_content),
+                    date          = VALUES(date),
+                    venue         = VALUES(venue),
+                    design        = VALUES(design),
+                    template_path = VALUES(template_path),
+                    type          = VALUES(type),
+                    signatories   = VALUES(signatories),
+                    issued_at     = VALUES(issued_at),
+                    qr_data       = VALUES(qr_data)";
 
         if ($db->query($sql)) {
             $saved++;

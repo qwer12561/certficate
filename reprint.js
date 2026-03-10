@@ -95,9 +95,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const ordinal = getOrdinalNum(day);
 
             const bannerText = cert.type === 'completion' ? 'OF COMPLETION' : 'OF RECOGNITION';
-            const certIdDisplay = cert.type === 'completion' ? `<p class="official-cert-id">ID: training course PDRRM DAUSUR ${cert.id}</p>` : '';
+            const certIdDisplay = cert.type === 'completion' ? `<p class="official-cert-id">ID: training course PDRRMO DAVSUR ${cert.id}</p>` : '';
 
-            const bgImage = design === 'elegant-gold' ? 'elegant_gold_bg.png?v=2' : 'frame.png';
+            let bgImage = design === 'elegant-gold' ? 'elegant_gold_bg.png?v=2' : 'frame.png';
+            if (cert.templatePath) {
+                bgImage = cert.templatePath;
+            }
             certContent.className = `certificate-container design-official-recognition design-${design}`;
             certContent.style.backgroundImage = '';
             certContent.innerHTML = `
@@ -153,6 +156,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     downloadBtn.addEventListener('click', () => {
-        alert('Downloading PDF is simulated. In a real environment, this would use a library like jsPDF or a server-side generator.');
+        const element = document.getElementById('certificate-to-print');
+        const recipientName = element.querySelector('.official-recipient-name').textContent.trim() || 'Certificate';
+
+        const opt = {
+            margin: 0,
+            filename: `Certificate_${recipientName.replace(/\s+/g, '_')}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+                scale: 3,
+                useCORS: true,
+                logging: false,
+                letterRendering: false
+            },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+
+        // UI Feedback
+        const originalText = downloadBtn.textContent;
+        downloadBtn.disabled = true;
+        downloadBtn.textContent = '⏳ Generating PDF...';
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            downloadBtn.disabled = false;
+            downloadBtn.textContent = originalText;
+        }).catch(err => {
+            console.error('PDF Generation Error:', err);
+            alert('Failed to generate PDF. Please try again.');
+            downloadBtn.disabled = false;
+            downloadBtn.textContent = originalText;
+        });
     });
 });

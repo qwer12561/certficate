@@ -307,6 +307,75 @@ body {
     color: var(--accent-color);
 }
 
+/* Template Gallery Styles */
+.template-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(10, 25, 47, 0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.template-card {
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 5px;
+    transition: var(--transition);
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.template-card:hover {
+    background: rgba(100, 255, 218, 0.1);
+    transform: translateY(-2px);
+}
+
+.template-card.active {
+    border-color: var(--accent-color);
+    background: rgba(100, 255, 218, 0.15);
+}
+
+.template-thumb {
+    width: 100%;
+    aspect-ratio: 1.414 / 1;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.template-name {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    text-align: center;
+}
+
+.template-card.active .template-name {
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+.loading-templates,
+.no-templates,
+.error-templates {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
 .btn-primary {
     padding: 1rem 2rem;
     border-radius: 8px;
@@ -323,6 +392,41 @@ body {
 .btn-primary:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(100, 255, 218, 0.3);
+}
+
+.btn-secondary {
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    border: none;
+    background: #6c757d;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-top: 1rem;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.btn-small {
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    border: none;
+    background: #6c757d;
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-small:hover {
+    background: #5a6268;
 }
 
 .back-link {
@@ -518,12 +622,10 @@ body {
 
 .design-modern-blue .official-sig-name {
     font-weight: 800;
-    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 0 8px rgba(255, 255, 255, 0.9);
 }
 
 .design-modern-blue .official-sig-title {
     font-weight: 700;
-    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 0 8px rgba(255, 255, 255, 0.9);
 }
 
 /* ── Elegant Gold Theme ──────────────────────────────────────── */
@@ -579,29 +681,19 @@ body {
 .design-elegant-gold .official-sig-line {
     border-top-color: #c8a84b;
     border-top-width: 2px;
-    box-shadow: 0 -1px 3px rgba(255, 255, 255, 0.8), 0 1px 3px rgba(255, 255, 255, 0.8);
 }
 
 .design-elegant-gold .official-sig-name {
     color: #1a2d5a;
     font-weight: 800;
-    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 0 8px rgba(255, 255, 255, 0.9);
 }
 
 .design-elegant-gold .official-sig-title {
     color: #222;
     font-weight: 700;
-    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 0 8px rgba(255, 255, 255, 0.9);
 }
 
-.design-elegant-gold .official-cert-id {
-    color: #fff;
-    z-index: 20;
-    font-size: 0.75rem;
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 1), -1px -1px 4px rgba(0, 0, 0, 0.8);
-    left: 2.5rem;
-    bottom: 2.5rem;
-}
+/* Glassmorphism ID pill is now global via .official-cert-id */
 
 .design-elegant-gold .cert-header-logos {
     border-bottom: none;
@@ -612,18 +704,26 @@ body {
     box-shadow: 0 2px 10px rgba(200, 168, 75, 0.3);
 }
 
+/* ── Custom Design Specific Styles ─────────────────────────────── */
+.design-custom .official-sig-name {
+    color: #1a1a1a;
+    font-weight: 850;
+}
+
+.design-custom .official-sig-title {
+    color: #2c2c2c;
+    font-weight: 700;
+}
+
+.design-custom .official-sig-line {
+    border-top: 2px solid #333;
+}
+
 .design-classic-brown .official-recipient-name {
     color: var(--cert-brown);
 }
 
-.design-classic-brown .official-cert-id {
-    color: #fff;
-    z-index: 20;
-    font-size: 0.75rem;
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 1), -1px -1px 4px rgba(0, 0, 0, 0.8);
-    left: 2.5rem;
-    bottom: 2.5rem;
-}
+/* Glassmorphism ID pill is now global via .official-cert-id */
 
 /* View Module Styles */
 .view-controls {
@@ -969,86 +1069,7 @@ body {
     transform: scale(1.2);
 }
 
-/* Print Optimization */
-@media print {
-    body {
-        background: white !important;
-        color: black !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
-    .video-bg,
-    .overlay,
-    .header,
-    .search-section,
-    .view-controls,
-    .action-bar,
-    .back-link,
-    .footer {
-        display: none !important;
-    }
-
-    .container {
-        padding: 0 !important;
-        margin: 0 !important;
-        max-width: none !important;
-    }
-
-    .reprint-preview {
-        max-width: none !important;
-        margin: 0 !important;
-    }
-
-    .certificate-container {
-        box-shadow: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        min-width: unset !important;
-        /* Reset the preview scale so the full certificate prints */
-        transform: none !important;
-        transform-origin: top left !important;
-        /* Force background images/colors to print */
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        background-size: 100% 100% !important;
-        background-repeat: no-repeat !important;
-        background-position: center !important;
-    }
-
-    /* Ensure frame backgrounds appear on all design variants */
-    .certificate-container.design-modern-blue,
-    .certificate-container.design-official-recognition,
-    .certificate-container.design-classic-brown {
-        background-image: url('frame.png') !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-
-    .certificate-container.design-elegant-gold {
-        background-image: url('elegant_gold_bg.png?v=2') !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-
-    .cert-outer-border {
-        border-width: 12px !important;
-    }
-
-    /* Ensure absolutely-positioned background img prints correctly */
-    .certificate-container>img[alt=""] {
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        display: block !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-}
+/* Print Optimization moved to end of file */
 
 /* Official Recognition Design (Image Matched) */
 .design-official-recognition {
@@ -1129,14 +1150,17 @@ body {
 
 .official-cert-id {
     position: absolute;
-    bottom: 1rem;
-    left: 4.5rem;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #666;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #2c2c2c;
     letter-spacing: 0.5px;
     margin: 0;
-    z-index: 10;
+    z-index: 100;
+    text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    opacity: 0.9;
 }
 
 .official-banner::after {
@@ -1360,7 +1384,6 @@ body {
 
 /* Modern Blue Background Frame Fix */
 .certificate-container.design-modern-blue,
-.certificate-container.design-official-recognition,
 .certificate-container.design-classic-brown {
     background-image: url('frame.png') !important;
     background-size: 100% 100% !important;
@@ -1377,4 +1400,119 @@ body {
     background-position: center !important;
     background-origin: border-box !important;
     background-clip: border-box !important;
+}
+
+/* ── Final Print Optimization ────────────────────────────────── */
+@media print {
+
+    html,
+    body {
+        width: 297mm;
+        height: 210mm;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .video-bg,
+    .overlay,
+    .header,
+    .search-section,
+    .view-controls,
+    .action-bar,
+    .back-link,
+    .footer,
+    .close-modal,
+    .modal-actions,
+    .preview-hint,
+    .recipient-input-row,
+    .recipients-list {
+        display: none !important;
+    }
+
+    @page {
+        size: A4 landscape;
+        margin: 0;
+    }
+
+    .container,
+    .reprint-preview,
+    .modal-cert-preview {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: none !important;
+        width: 297mm !important;
+        height: 210mm !important;
+        box-shadow: none !important;
+        background: transparent !important;
+    }
+
+    .certificate-container {
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 297mm !important;
+        height: 210mm !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        border: none !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        transform: none !important;
+        transform-origin: top left !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        background-color: white !important;
+        background-size: 100% 100% !important;
+        background-repeat: no-repeat !important;
+        background-position: center !important;
+    }
+
+    /* Assign background images specifically - avoid design-official-recognition which is global */
+    .certificate-container.design-modern-blue,
+    .certificate-container.design-classic-brown {
+        background-image: url('frame.png') !important;
+    }
+
+    .certificate-container.design-elegant-gold {
+        background-image: url('elegant_gold_bg.png?v=2') !important;
+    }
+
+    /* Custom designs should not have a CSS background-image as the JS adds an <img> tag */
+    .certificate-container.design-custom {
+        background-image: none !important;
+    }
+
+    .cert-outer-border {
+        border: none !important;
+        padding: 0 !important;
+    }
+
+    .cert-inner-content {
+        border: none !important;
+        padding: 40px !important;
+        /* Internal content padding */
+    }
+
+    /* Ensure absolutely-positioned background images fill the page */
+    .certificate-container>img {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 297mm !important;
+        height: 210mm !important;
+        display: block !important;
+        z-index: 0 !important;
+        object-fit: fill !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
 }

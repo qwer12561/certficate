@@ -20,8 +20,31 @@ document.addEventListener('DOMContentLoaded', () => {
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js')
-                .then(registration => console.log('Service Worker registered successfully'))
+                .then(registration => {
+                    console.log('Service Worker registered successfully');
+
+                    // Check for updates
+                    registration.onupdatefound = () => {
+                        const installingWorker = registration.installing;
+                        installingWorker.onstatechange = () => {
+                            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New content is available, force refresh
+                                console.log('New content available, refreshing...');
+                                window.location.reload();
+                            }
+                        };
+                    };
+                })
                 .catch(err => console.error('Service Worker registration failed: ', err));
+        });
+
+        // Listen for the controlling service worker changing
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) {
+                window.location.reload();
+                refreshing = true;
+            }
         });
     }
 });

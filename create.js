@@ -15,6 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const designRadios = document.querySelectorAll('input[name="design"]');
     const sig1Name = document.getElementById('sig-1-name');
     const sig1Title = document.getElementById('sig-1-title');
+    const templateGallery = document.getElementById('template-gallery');
+    const btnUploadTrigger = document.getElementById('btn-upload-trigger');
+    const inputTemplateUpload = document.getElementById('template-upload');
+
+    let selectedTemplatePath = null;
 
     // ── Recipients Array ──────────────────────────────────────────────
     let recipients = [];
@@ -112,13 +117,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const typeRadio = document.querySelector('input[name="cert-type"]:checked');
         const type = typeRadio ? typeRadio.value : 'recognition';
 
+        // Show/Hide custom gallery based on design choice
+        const customGallerySection = templateGallery.closest('.form-group');
+        if (design === 'custom') {
+            customGallerySection.style.display = 'block';
+            customGallerySection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else {
+            customGallerySection.style.display = 'none';
+        }
+
         const signatories = [
             { name: sig1Name ? sig1Name.value || '' : '', title: sig1Title ? sig1Title.value || 'Training Unit Head PDRRMO Davao del sur' : 'Training Unit Head PDRRMO Davao del sur' },
             { name: 'HANIE B. FLORES, RSW', title: 'OIC PDRRMO' },
             { name: 'HON. YVONE R. CAGAS', title: 'Governor PDRRMC Chairperson' }
         ];
 
-        renderUnifiedCertificate({ design, type, recipient: previewName, bodyContent, venue, dateStr, signatories });
+        renderUnifiedCertificate({ design, type, recipient: previewName, bodyContent, venue, dateStr, signatories, templatePath: selectedTemplatePath });
     }
 
     function getLogoHeader() {
@@ -137,7 +151,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderUnifiedCertificate(data) {
-        const bgImage = data.design === 'elegant-gold' ? 'elegant_gold_bg.png?v=2' : 'frame.png';
+        let bgImage = 'frame.png'; // Default for modern-blue
+        if (data.design === 'elegant-gold') {
+            bgImage = 'elegant_gold_bg.png?v=2';
+        } else if (data.design === 'custom') {
+            // Use the selected template if exists, otherwise use kit1.png as the generic custom placeholder
+            bgImage = data.templatePath || 'kits1.png';
+        }
+
         previewContainer.className = `certificate-container design-official-recognition design-${data.design}`;
 
         const d = new Date(inputDate.value || new Date());
@@ -178,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         `).join('')}
                     </div>
-                    ${data.type === 'completion' ? `<p class="official-cert-id">ID: training course PDRRM DAUSUR ${data.id || ''}</p>` : ''}
+                    ${data.type === 'completion' ? `<p class="official-cert-id">ID: training course PDRRMO DAVSUR ${data.id || ''}</p>` : ''}
                 </div>
             </div>
         `;
@@ -236,6 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
             date: inputDate.value,
             venue: inputVenue ? inputVenue.value || 'Provincial Capitol' : 'Provincial Capitol',
             design: design,
+            templatePath: selectedTemplatePath,
             type: type,
             signatories: [
                 { name: sig1Name ? sig1Name.value || '' : '', title: sig1Title ? sig1Title.value || 'Training Unit Head PDRRMO Davao del sur' : 'Training Unit Head PDRRMO Davao del sur' },
@@ -268,6 +290,101 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.textContent = originalText;
         }
     });
+
+    // ── Template Gallery ─────────────────────────────────────────────
+    async function initTemplateGallery() {
+        if (!templateGallery) return;
+
+        try {
+            const response = await fetch('api/get_templates.php');
+            const result = await response.json();
+
+            if (result.success && result.templates.length > 0) {
+                templateGallery.innerHTML = '';
+                result.templates.forEach(tpl => {
+                    const card = document.createElement('div');
+                    card.className = 'template-card';
+                    card.innerHTML = `
+                        <img src="${tpl.path}" alt="${tpl.name}" class="template-thumb">
+                        <span class="template-name">${tpl.name}</span>
+                    `;
+                    card.addEventListener('click', () => {
+                        // Deselect other cards
+                        document.querySelectorAll('.template-card').forEach(c => c.classList.remove('active'));
+                        card.classList.add('active');
+
+                        // Set selected template
+                        selectedTemplatePath = tpl.path;
+
+                        // Update preview
+                        updatePreview();
+                    });
+                    templateGallery.appendChild(card);
+                });
+            } else {
+                templateGallery.innerHTML = '<div class="no-templates">No templates found in folder.</div>';
+            }
+        } catch (err) {
+            console.error('Error loading templates:', err);
+            templateGallery.innerHTML = '<div class="error-templates">Failed to load templates.</div>';
+        }
+    }
+
+    initTemplateGallery();
+
+    // ── Upload Custom Template ───────────────────────────────────────
+    if (btnUploadTrigger && inputTemplateUpload) {
+        btnUploadTrigger.addEventListener('click', () => {
+            inputTemplateUpload.click();
+        });
+
+        inputTemplateUpload.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('template', file);
+
+            btnUploadTrigger.disabled = true;
+            btnUploadTrigger.textContent = '⏳ Uploading...';
+
+            try {
+                const response = await fetch('api/upload_template.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    // Refresh gallery
+                    await initTemplateGallery();
+
+                    // Automatically select the new template
+                    selectedTemplatePath = result.path;
+                    updatePreview();
+
+                    // Highlight the new one in gallery
+                    setTimeout(() => {
+                        const allCards = document.querySelectorAll('.template-card');
+                        allCards.forEach(card => card.classList.remove('active'));
+                        const newCard = Array.from(allCards).find(card => card.querySelector('img').src.includes(result.file));
+                        if (newCard) newCard.classList.add('active');
+                    }, 500);
+
+                    alert('✅ Template uploaded and selected successfully!');
+                } else {
+                    alert('❌ Upload failed: ' + (result.error || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error('Upload error:', err);
+                alert('❌ Could not upload file.');
+            } finally {
+                btnUploadTrigger.disabled = false;
+                btnUploadTrigger.textContent = '+ Upload New';
+                inputTemplateUpload.value = '';
+            }
+        });
+    }
 
     // ── Initial render ────────────────────────────────────────────────
     updatePreview();

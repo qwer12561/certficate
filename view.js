@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalContent = document.getElementById('modal-cert-container');
     const closeBtn = document.querySelector('.close-modal');
     const printBtn = document.getElementById('modal-print-btn');
+    const downloadBtn = document.getElementById('modal-download-btn');
 
     let certificates = [];
 
@@ -110,6 +111,42 @@ document.addEventListener('DOMContentLoaded', () => {
         printBtn.onclick = () => {
             window.location.href = `reprint.html?id=${id}&print=true`;
         };
+
+        if (downloadBtn) {
+            downloadBtn.onclick = () => {
+                const element = modalContent.querySelector('.certificate-container');
+                if (!element) return;
+
+                const recipientName = element.querySelector('.official-recipient-name').textContent.trim() || 'Certificate';
+
+                const opt = {
+                    margin: 0,
+                    filename: `Certificate_${recipientName.replace(/\s+/g, '_')}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: {
+                        scale: 3,
+                        useCORS: true,
+                        logging: false,
+                        letterRendering: false
+                    },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+                };
+
+                const originalText = downloadBtn.textContent;
+                downloadBtn.disabled = true;
+                downloadBtn.textContent = '⏳ Generating...';
+
+                html2pdf().set(opt).from(element).save().then(() => {
+                    downloadBtn.disabled = false;
+                    downloadBtn.textContent = originalText;
+                }).catch(err => {
+                    console.error('PDF Generation Error:', err);
+                    alert('Failed to generate PDF.');
+                    downloadBtn.disabled = false;
+                    downloadBtn.textContent = originalText;
+                });
+            };
+        }
     };
 
     if (closeBtn) {
@@ -168,9 +205,12 @@ document.addEventListener('DOMContentLoaded', () => {
         ];
 
         const bannerText = data.type === 'completion' ? 'OF COMPLETION' : 'OF RECOGNITION';
-        const certIdDisplay = data.type === 'completion' ? `<p class="official-cert-id">ID: training course PDRRM DAUSUR ${data.id}</p>` : '';
+        const certIdDisplay = data.type === 'completion' ? `<p class="official-cert-id">ID: training course PDRRMO DAVSUR ${data.id}</p>` : '';
 
-        const bgImage = data.design === 'elegant-gold' ? 'elegant_gold_bg.png?v=2' : 'frame.png';
+        let bgImage = data.design === 'elegant-gold' ? 'elegant_gold_bg.png?v=2' : 'frame.png';
+        if (data.templatePath) {
+            bgImage = data.templatePath;
+        }
 
         return `
         <div class="certificate-container design-official-recognition design-${data.design}">

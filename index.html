@@ -23,42 +23,65 @@
         <div class="overlay"></div>
     </div>
 
-    <main class="container">
-        <header class="header">
-            <h1 class="title">Certificate Management System</h1>
-            <p class="subtitle">Secure & Professional Certificate Administration</p>
-        </header>
-
-        <nav class="menu-grid">
-            <a href="create.html" class="menu-card" id="btn-create">
-                <div class="card-icon">➕</div>
-                <div class="card-content">
-                    <h2 class="card-title">Create Certificate</h2>
-                    <p class="card-desc">Issue new professional certificates with custom designs.</p>
-                </div>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <a href="index.html" class="sidebar-logo">
+                <span class="logo-icon">📜</span>
+                <span class="logo-text">Certificate System</span>
             </a>
+            <nav class="sidebar-nav">
+                <a href="create.html" class="nav-item">
+                    <i>➕</i> <span>Create New</span>
+                </a>
+                <a href="view.html" class="nav-item">
+                    <i>📂</i> <span>View All</span>
+                </a>
+                <a href="reprint.html" class="nav-item">
+                    <i>🖨️</i> <span>Reprint</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <p>&copy; 2026 Certificate System</p>
+            </div>
+        </aside>
 
-            <a href="view.html" class="menu-card" id="btn-view">
-                <div class="card-icon">📂</div>
-                <div class="card-content">
-                    <h2 class="card-title">View Generated Certificates</h2>
-                    <p class="card-desc">Browse and manage the history of all issued certificates.</p>
-                </div>
-            </a>
+        <main class="main-content">
+            <header class="header">
+                <h1 class="title">Certificate Management System</h1>
+                <p class="subtitle">Secure & Professional Certificate Administration</p>
+            </header>
 
-            <a href="reprint.html" class="menu-card" id="btn-reprint">
-                <div class="card-icon">🖨</div>
-                <div class="card-content">
-                    <h2 class="card-title">Reprint Certificate</h2>
-                    <p class="card-desc">Quickly search and reprint existing certificates.</p>
-                </div>
-            </a>
-        </nav>
+            <nav class="menu-grid">
+                <a href="create.html" class="menu-card" id="btn-create">
+                    <div class="card-icon">➕</div>
+                    <div class="card-content">
+                        <h2 class="card-title">Create Certificate</h2>
+                        <p class="card-desc">Issue new professional certificates with custom designs.</p>
+                    </div>
+                </a>
 
-        <footer class="footer">
-            <p>&copy; 2026 Certificate System. All Rights Reserved.</p>
-        </footer>
-    </main>
+                <a href="view.html" class="menu-card" id="btn-view">
+                    <div class="card-icon">📂</div>
+                    <div class="card-content">
+                        <h2 class="card-title">View Generated Certificates</h2>
+                        <p class="card-desc">Browse and manage the history of all issued certificates.</p>
+                    </div>
+                </a>
+
+                <a href="reprint.html" class="menu-card" id="btn-reprint">
+                    <div class="card-icon">🖨️</div>
+                    <div class="card-content">
+                        <h2 class="card-title">Reprint Certificate</h2>
+                        <p class="card-desc">Quickly search and reprint existing certificates.</p>
+                    </div>
+                </a>
+            </nav>
+
+            <footer class="footer">
+                <p>&copy; 2026 Certificate System. All Rights Reserved.</p>
+            </footer>
+        </main>
+    </div>
 
     <script src="main.js?v=107"></script>
 </body>

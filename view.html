@@ -22,33 +22,55 @@
     <div class="video-bg">
         <div class="overlay"></div>
     </div>
-    <main class="container">
-        <header class="header" style="text-align: left; margin-bottom: 2rem;">
-            <a href="index.html" class="back-link">← Back to Menu</a>
-            <h1 class="title">Issued Certificates</h1>
-            <p class="subtitle">History of all generated certificates</p>
-        </header>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <a href="index.html" class="sidebar-logo">
+                <span class="logo-icon">📜</span>
+                <span class="logo-text">Certificate System</span>
+            </a>
+            <nav class="sidebar-nav">
+                <a href="create.html" class="nav-item">
+                    <i>➕</i> <span>Create New</span>
+                </a>
+                <a href="view.html" class="nav-item active">
+                    <i>📂</i> <span>View All</span>
+                </a>
+                <a href="reprint.html" class="nav-item">
+                    <i>🖨️</i> <span>Reprint</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <p>&copy; 2026 Certificate System</p>
+            </div>
+        </aside>
 
-        <div class="view-controls">
-            <div class="search-box">
-                <input type="text" id="view-search" placeholder="Search by recipient or title...">
-            </div>
-            <div class="sort-box">
-                <select id="view-sort">
-                    <option value="newest" selected>Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                    <option value="name">Recipient Name</option>
-                </select>
-            </div>
-        </div>
+        <main class="main-content">
+            <header class="header" style="text-align: left; margin-bottom: 2rem;">
+                <h1 class="title">Issued Certificates</h1>
+                <p class="subtitle">History of all generated certificates</p>
+            </header>
 
-        <div id="certificates-list" class="certificates-grid">
-            <!-- Dynamic content will be injected here -->
-            <div class="loading-state">
-                <p>Loading certificates...</p>
+            <div class="view-controls">
+                <div class="search-box">
+                    <input type="text" id="view-search" placeholder="Search by recipient or title...">
+                </div>
+                <div class="sort-box">
+                    <select id="view-sort">
+                        <option value="newest" selected>Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="name">Recipient Name</option>
+                    </select>
+                </div>
             </div>
-        </div>
-    </main>
+
+            <div id="certificates-list" class="certificates-grid">
+                <!-- Dynamic content will be injected here -->
+                <div class="loading-state">
+                    <p>Loading certificates...</p>
+                </div>
+            </div>
+        </main>
+    </div>
 
     <!-- Preview Modal -->
     <div id="preview-modal" class="modal">

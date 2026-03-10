@@ -92,12 +92,42 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Live Preview Listeners ────────────────────────────────────────
     const certTypeRadios = document.querySelectorAll('input[name="cert-type"]');
     [...designRadios, ...certTypeRadios].forEach(radio => {
-        radio.addEventListener('change', updatePreview);
+        radio.addEventListener('change', () => {
+            updatePreview();
+            updatePreviewScale();
+        });
     });
 
     [inputDate, inputVenue, inputBody, sig1Name, sig1Title].forEach(el => {
-        if (el) el.addEventListener('input', updatePreview);
+        if (el) el.addEventListener('input', () => {
+            updatePreview();
+            updatePreviewScale();
+        });
     });
+
+    // ── Preview Scaling ───────────────────────────────────────────────
+    function updatePreviewScale() {
+        const previewArea = document.querySelector('.preview-wrapper');
+        const certificate = document.getElementById('certificate-preview');
+        if (!previewArea || !certificate) return;
+
+        const padding = 40;
+        const availableWidth = previewArea.clientWidth - padding;
+        const availableHeight = previewArea.clientHeight - padding;
+
+        const certWidth = 1122.52; // 297mm in px (approx)
+        const certHeight = 793.7; // 210mm in px (approx)
+
+        const scaleX = availableWidth / certWidth;
+        const scaleY = availableHeight / certHeight;
+        const scale = Math.min(scaleX, scaleY, 1);
+
+        certificate.style.transform = `scale(${scale})`;
+    }
+
+    window.addEventListener('resize', updatePreviewScale);
+    // Initial scale after a short delay to ensure layout is ready
+    setTimeout(updatePreviewScale, 100);
 
     // Typing in the name field also updates preview in real-time
     inputRecipient.addEventListener('input', updatePreview);

@@ -21,151 +21,180 @@
     <div class="video-bg">
         <div class="overlay"></div>
     </div>
-    <main class="container multi-layout">
-        <div class="form-section">
-            <header class="header" style="text-align: left; margin-bottom: 2rem;">
-                <a href="index.html" class="back-link">← Back to Menu</a>
-                <h1 class="title" style="font-size: 2.5rem; border-bottom: 2px solid #ff5252;">Create Certificate</h1>
-            </header>
-
-            <form id="certificate-form" class="professional-form">
-                <div class="form-group">
-                    <label>Recipients <span id="recipient-count" class="recipient-count"></span></label>
-                    <div class="recipient-input-row">
-                        <input type="text" id="recipient-name" placeholder="Type a name and press Add or Enter">
-                        <button type="button" id="btn-add-recipient" class="btn-add">+ Add</button>
-                    </div>
-                    <ul id="recipients-list" class="recipients-list"></ul>
-                </div>
-
-                <div class="form-group">
-                    <label for="certificate-body">Certificate Body Context</label>
-                    <textarea id="certificate-body" rows="6"
-                        placeholder="Enter the full certificate text..."></textarea>
-                    <p class="field-hint">Tip: You can edit the entire message here.</p>
-                </div>
-
-                <div class="form-group">
-                    <label>Certificate Type</label>
-                    <div class="design-selector">
-                        <label class="design-option">
-                            <input type="radio" name="cert-type" value="recognition" checked>
-                            <span>Recognition</span>
-                        </label>
-                        <label class="design-option">
-                            <input type="radio" name="cert-type" value="completion">
-                            <span>Completion</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="issue-date">Issue Date</label>
-                        <input type="date" id="issue-date" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Design Template</label>
-                    <div class="design-selector">
-                        <label class="design-option">
-                            <input type="radio" name="design" value="modern-blue" checked>
-                            <span>Modern Blue</span>
-                        </label>
-                        <label class="design-option">
-                            <input type="radio" name="design" value="elegant-gold">
-                            <span>Elegant Gold</span>
-                        </label>
-                        <label class="design-option">
-                            <input type="radio" name="design" value="custom">
-                            <span>Select Custom Design</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-group"
-                    style="margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid var(--accent-color);">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <label style="color: #fff; font-size: 1.2rem; font-weight: 800;">🖼️ SELECT CUSTOM
-                            DESIGN</label>
-                        <button type="button" id="btn-upload-trigger" class="btn-add"
-                            style="background: var(--accent-color); color: var(--primary-color);">+ Upload New</button>
-                    </div>
-
-                    <input type="file" id="template-upload" style="display: none;" accept="image/*">
-
-                    <div id="template-gallery" class="template-gallery"
-                        style="margin-top: 0.5rem; border: 2px solid var(--glass-border); background: rgba(0,0,0,0.2);">
-                        <div class="loading-templates">Loading your gallery...</div>
-                    </div>
-                    <p class="field-hint" style="margin-top: 0.5rem; color: var(--accent-color);">Tip: Pick a picture
-                        above to change the certificate background.</p>
-                </div>
-
-                <div id="additional-fields"
-                    style="display: none; border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
-                    <h3 class="section-subtitle" style="font-size: 1rem;">Design Specific Fields</h3>
-                    <div class="form-group">
-                        <label for="venue-name">Venue (Held at)</label>
-                        <input type="text" id="venue-name" placeholder="e.g. Provincial Capitol">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Signatories</label>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label style="font-size: 0.75rem;">Signatory 1 Name</label>
-                                <input type="text" id="sig-1-name" placeholder="Name">
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-primary" id="btn-issue">🎓 Issue Certificates for All
-                    Recipients</button>
-            </form>
-        </div>
-
-        <div class="preview-section">
-            <h2 class="section-subtitle">Live Preview</h2>
-            <div id="certificate-preview" class="certificate-container design-modern-blue">
-                <!-- Content will be dynamically updated by create.js -->
-                <div class="preview-default-content">
-                    <div class="cert-outer-border">
-                        <div class="cert-inner-content">
-                            <div class="cert-header">
-                                <div class="cert-logo-placeholder">OFFICIAL SEAL</div>
-                                <div class="cert-org-name">CERTIFICATE OF RECOGNITION</div>
-                            </div>
-                            <div class="cert-body">
-                                <p class="cert-presented-to">This certificate is proudly presented to</p>
-                                <h2 id="preview-recipient" class="cert-recipient-name">Recipient Name</h2>
-                                <div class="cert-divider"></div>
-                                <p id="preview-title" class="cert-title-text">Course / Achievement Title</p>
-                                <p id="preview-content" class="cert-description">For their outstanding dedication and
-                                    exceptional performance in all areas of the program.</p>
-                            </div>
-                            <div class="cert-footer">
-                                <div class="cert-signature-block">
-                                    <div class="cert-signature-line"></div>
-                                    <p id="preview-issuer" class="cert-issuer">Authorized Signatory</p>
-                                </div>
-                                <div class="cert-date-block">
-                                    <p id="preview-date" class="cert-date">October 24, 2026</p>
-                                    <p class="cert-date-label">Date Issued</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <a href="index.html" class="sidebar-logo">
+                <span class="logo-icon">📜</span>
+                <span class="logo-text">Certificate System</span>
+            </a>
+            <nav class="sidebar-nav">
+                <a href="create.html" class="nav-item active">
+                    <i>➕</i> <span>Create New</span>
+                </a>
+                <a href="view.html" class="nav-item">
+                    <i>📂</i> <span>View All</span>
+                </a>
+                <a href="reprint.html" class="nav-item">
+                    <i>🖨️</i> <span>Reprint</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <p>&copy; 2026 Certificate System</p>
             </div>
-            <p class="preview-hint">Note: This is a scaled-down preview. The final certificate will be full size for
-                printing.</p>
-        </div>
-    </main>
+        </aside>
+
+        <main class="main-content multi-layout">
+            <div class="form-section">
+                <header class="header" style="text-align: left; margin-bottom: 2rem;">
+                    <h1 class="title" style="font-size: 2.5rem; border-bottom: 2px solid #ff5252;">Create Certificate
+                    </h1>
+                </header>
+
+                <form id="certificate-form" class="professional-form">
+                    <div class="form-group">
+                        <label>Recipients <span id="recipient-count" class="recipient-count"></span></label>
+                        <div class="recipient-input-row">
+                            <input type="text" id="recipient-name" placeholder="Type a name and press Add or Enter">
+                            <button type="button" id="btn-add-recipient" class="btn-add">+ Add</button>
+                        </div>
+                        <ul id="recipients-list" class="recipients-list"></ul>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="certificate-body">Certificate Body Context</label>
+                        <textarea id="certificate-body" rows="6"
+                            placeholder="Enter the full certificate text..."></textarea>
+                        <p class="field-hint">Tip: You can edit the entire message here.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Certificate Type</label>
+                        <div class="design-selector">
+                            <label class="design-option">
+                                <input type="radio" name="cert-type" value="recognition" checked>
+                                <span>Recognition</span>
+                            </label>
+                            <label class="design-option">
+                                <input type="radio" name="cert-type" value="completion">
+                                <span>Completion</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="issue-date">Issue Date</label>
+                            <input type="date" id="issue-date" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Design Template</label>
+                        <div class="design-selector">
+                            <label class="design-option">
+                                <input type="radio" name="design" value="modern-blue" checked>
+                                <span>Modern Blue</span>
+                            </label>
+                            <label class="design-option">
+                                <input type="radio" name="design" value="elegant-gold">
+                                <span>Elegant Gold</span>
+                            </label>
+                            <label class="design-option">
+                                <input type="radio" name="design" value="custom">
+                                <span>Select Custom Design</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group"
+                        style="margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid var(--accent-color);">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <label style="color: #fff; font-size: 1.2rem; font-weight: 800;">🖼️ SELECT CUSTOM
+                                DESIGN</label>
+                            <button type="button" id="btn-upload-trigger" class="btn-add"
+                                style="background: var(--accent-color); color: var(--primary-color);">+ Upload
+                                New</button>
+                        </div>
+
+                        <input type="file" id="template-upload" style="display: none;" accept="image/*">
+
+                        <div id="template-gallery" class="template-gallery"
+                            style="margin-top: 0.5rem; border: 2px solid var(--glass-border); background: rgba(0,0,0,0.2);">
+                            <div class="loading-templates">Loading your gallery...</div>
+                        </div>
+                        <p class="field-hint" style="margin-top: 0.5rem; color: var(--accent-color);">Tip: Pick a
+                            picture
+                            above to change the certificate background.</p>
+                    </div>
+
+                    <div id="additional-fields"
+                        style="display: none; border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
+                        <h3 class="section-subtitle" style="font-size: 1rem;">Design Specific Fields</h3>
+                        <div class="form-group">
+                            <label for="venue-name">Venue (Held at)</label>
+                            <input type="text" id="venue-name" placeholder="e.g. Provincial Capitol">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Signatories</label>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label style="font-size: 0.75rem;">Signatory 1 Name</label>
+                                    <input type="text" id="sig-1-name" placeholder="Name">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary" id="btn-issue">🎓 Issue Certificates for All
+                        Recipients</button>
+                </form>
+            </div>
+
+            <div class="preview-section">
+                <h2 class="section-subtitle">Live Preview</h2>
+                <div class="preview-wrapper">
+                    <div id="certificate-preview" class="certificate-container design-modern-blue">
+                        <!-- Content will be dynamically updated by create.js -->
+                        <div class="preview-default-content">
+                            <div class="cert-outer-border">
+                                <div class="cert-inner-content">
+                                    <div class="cert-header">
+                                        <div class="cert-logo-placeholder">OFFICIAL SEAL</div>
+                                        <div class="cert-org-name">CERTIFICATE OF RECOGNITION</div>
+                                    </div>
+                                    <div class="cert-body">
+                                        <p class="cert-presented-to">This certificate is proudly presented to</p>
+                                        <h2 id="preview-recipient" class="cert-recipient-name">Recipient Name</h2>
+                                        <div class="cert-divider"></div>
+                                        <p id="preview-title" class="cert-title-text">Course / Achievement Title</p>
+                                        <p id="preview-content" class="cert-description">For their outstanding
+                                            dedication
+                                            and
+                                            exceptional performance in all areas of the program.</p>
+                                    </div>
+                                    <div class="cert-footer">
+                                        <div class="cert-signature-block">
+                                            <div class="cert-signature-line"></div>
+                                            <p id="preview-issuer" class="cert-issuer">Authorized Signatory</p>
+                                        </div>
+                                        <div class="cert-date-block">
+                                            <p id="preview-date" class="cert-date">October 24, 2026</p>
+                                            <p class="cert-date-label">Date Issued</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p class="preview-hint">Note: This is a scaled-down preview. The final certificate will be full size for
+                    printing.</p>
+            </div>
+        </main>
+    </div>
 
     <script src="create.js?v=107"></script>
 </body>

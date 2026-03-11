@@ -198,15 +198,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const fullDateStr = formatDate(data.date);
 
-        const sigs = (data.signatories || [
+        const sigs = data.signatories || [
             { name: 'HANIE B. FLORES, RSW', title: 'OIC PDRRMO', signature: 'sig_transparent.png' },
             { name: 'HON. YVONE R. CAGAS', title: 'Governor PDRRMC Chairperson', signature: 'gov.png' }
-        ]).map(s => {
-            if (s && s.name && s.name.includes('YVONE')) {
-                return { ...s, signature: 'gov.png' };
-            }
-            return s;
-        });
+        ];
 
         const bannerText = data.type === 'completion' ? 'OF COMPLETION' : 'OF RECOGNITION';
         const certIdDisplay = data.type === 'completion' ? `<p class="official-cert-id">ID: training course PDRRMO DAVSUR ${data.id}</p>` : '';

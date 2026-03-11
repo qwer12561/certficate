@@ -83,15 +83,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const design = cert.design || 'standard';
             const venue = cert.venue || 'Provincial Capitol';
-            const signatories = (cert.signatories || [
+            const signatories = cert.signatories || [
                 { name: 'HANIE B. FLORES, RSW', title: 'OIC PDRRMO', signature: 'sig_transparent.png' },
                 { name: 'HON. YVONE R. CAGAS', title: 'Governor PDRRMC Chairperson', signature: 'gov.png' }
-            ]).map(s => {
-                if (s && s.name && s.name.includes('YVONE')) {
-                    return { ...s, signature: 'gov.png' };
-                }
-                return s;
-            });
+            ];
 
             const d = new Date(cert.date || new Date());
             const day = !isNaN(d.getTime()) ? d.getDate() : new Date().getDate();

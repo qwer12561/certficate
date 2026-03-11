@@ -13,8 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputVenue = document.getElementById('venue-name');
     const inputBody = document.getElementById('certificate-body');
     const designRadios = document.querySelectorAll('input[name="design"]');
-    const sig1Name = document.getElementById('sig-1-name');
-    const sig1Title = document.getElementById('sig-1-title');
+    // const sig1Name = document.getElementById('sig-1-name'); // Removed as per request
+    // const sig1Title = document.getElementById('sig-1-title'); // Removed as per request
     const templateGallery = document.getElementById('template-gallery');
     const btnUploadTrigger = document.getElementById('btn-upload-trigger');
     const inputTemplateUpload = document.getElementById('template-upload');
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    [inputDate, inputVenue, inputBody, sig1Name, sig1Title].forEach(el => {
+    [inputDate, inputVenue, inputBody].forEach(el => {
         if (el) el.addEventListener('input', () => {
             updatePreview();
             updatePreviewScale();
@@ -157,10 +157,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const signatories = [
-            { name: sig1Name ? sig1Name.value || '' : '', title: sig1Title ? sig1Title.value || 'Training Unit Head PDRRMO Davao del sur' : 'Training Unit Head PDRRMO Davao del sur' },
-            { name: 'HANIE B. FLORES, RSW', title: 'OIC PDRRMO' },
-            { name: 'HON. YVONE R. CAGAS', title: 'Governor PDRRMC Chairperson' }
+            { name: 'HANIE B. FLORES, RSW', title: 'OIC PDRRMO', signature: 'sig_transparent.png' },
+            { name: 'HON. YVONE R. CAGAS', title: 'Governor PDRRMC Chairperson', signature: 'gov_sig.png' }
         ];
+
+        // Ensure Yvone always has the signature
+        signatories.forEach(s => {
+            if (s.name.includes('YVONE') && !s.signature) s.signature = 'gov_sig.png';
+        });
 
         renderUnifiedCertificate({ design, type, recipient: previewName, bodyContent, venue, dateStr, signatories, templatePath: selectedTemplatePath });
     }
@@ -223,15 +227,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="official-footer-signatories">
                         ${data.signatories.filter(s => s.name.trim() !== '').map(sig => `
                             <div class="official-signatory">
+                                ${sig.signature ? `<img src="${sig.signature}" alt="Signature" class="official-sig-image">` : ''}
                                 <div class="official-sig-line"></div>
                                 <p class="official-sig-name">${sig.name}</p>
                                 <p class="official-sig-title">${sig.title}</p>
                             </div>
                         `).join('')}
                     </div>
-                    ${data.type === 'completion' ? `<p class="official-cert-id">ID: training course PDRRMO DAVSUR ${data.id || ''}</p>` : ''}
                 </div>
             </div>
+            ${data.type === 'completion' ? `<p class="official-cert-id">ID: training course PDRRMO DAVSUR ${data.id || ''}</p>` : ''}
         `;
     }
 
@@ -290,9 +295,8 @@ document.addEventListener('DOMContentLoaded', () => {
             templatePath: selectedTemplatePath,
             type: type,
             signatories: [
-                { name: sig1Name ? sig1Name.value || '' : '', title: sig1Title ? sig1Title.value || 'Training Unit Head PDRRMO Davao del sur' : 'Training Unit Head PDRRMO Davao del sur' },
-                { name: 'HANIE B. FLORES, RSW', title: 'OIC PDRRMO' },
-                { name: 'HON. YVONE R. CAGAS', title: 'Governor PDRRMC Chairperson' }
+                { name: 'HANIE B. FLORES, RSW', title: 'OIC PDRRMO', signature: 'sig_transparent.png' },
+                { name: 'HON. YVONE R. CAGAS', title: 'Governor PDRRMC Chairperson', signature: 'gov_sig.png' }
             ],
             issuedAt: new Date().toISOString()
         }));
@@ -307,14 +311,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
 
             if (result.success) {
-                alert(`✅ ${result.saved} certificate${result.saved > 1 ? 's' : ''} issued successfully!`);
+                showToastPersistent(`✅ ${result.saved} certificate${result.saved > 1 ? 's' : ''} issued successfully!`);
                 window.location.href = 'view.html';
             } else {
-                alert('❌ Failed to save certificates: ' + (result.error || 'Unknown error'));
+                showToast('❌ Failed to save certificates: ' + (result.error || 'Unknown error'), 'error');
             }
         } catch (err) {
             console.error('Error saving certificates:', err);
-            alert('❌ Could not connect to the server. Make sure PHP is running.');
+            showToast('❌ Could not connect to the server. Make sure PHP is running.', 'error');
         } finally {
             submitBtn.disabled = false;
             submitBtn.textContent = originalText;
@@ -401,13 +405,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (newCard) newCard.classList.add('active');
                     }, 500);
 
-                    alert('✅ Template uploaded and selected successfully!');
+                    showToast('✅ Template uploaded and selected successfully!');
                 } else {
-                    alert('❌ Upload failed: ' + (result.error || 'Unknown error'));
+                    showToast('❌ Upload failed: ' + (result.error || 'Unknown error'), 'error');
                 }
             } catch (err) {
                 console.error('Upload error:', err);
-                alert('❌ Could not upload file.');
+                showToast('❌ Could not upload file.', 'error');
             } finally {
                 btnUploadTrigger.disabled = false;
                 btnUploadTrigger.textContent = '+ Upload New';

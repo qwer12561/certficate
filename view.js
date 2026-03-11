@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     downloadBtn.textContent = originalText;
                 }).catch(err => {
                     console.error('PDF Generation Error:', err);
-                    alert('Failed to generate PDF.');
+                    showToast('❌ Failed to generate PDF.', 'error');
                     downloadBtn.disabled = false;
                     downloadBtn.textContent = originalText;
                 });
@@ -181,11 +181,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 certificates = certificates.filter(c => c.id !== id);
                 renderCertificates(filterAndSort());
             } else {
-                alert('❌ Failed to delete: ' + (result.error || 'Unknown error'));
+                showToast('❌ Failed to delete: ' + (result.error || 'Unknown error'), 'error');
             }
         } catch (err) {
             console.error('Delete error:', err);
-            alert('❌ Could not connect to the server.');
+            showToast('❌ Could not connect to the server.', 'error');
         }
     };
 
@@ -198,11 +198,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const fullDateStr = formatDate(data.date);
 
-        const sigs = data.signatories || [
-            { name: '', title: 'Training Unit Head PDRRMO Davao del sur' },
-            { name: 'HANIE B. FLORES, RSW', title: 'OIC PDRRMO' },
-            { name: 'HON. YVONE R. CAGAS', title: 'Governor PDRRMC Chairperson' }
-        ];
+        const sigs = (data.signatories || [
+            { name: 'HANIE B. FLORES, RSW', title: 'OIC PDRRMO', signature: 'sig_transparent.png' },
+            { name: 'HON. YVONE R. CAGAS', title: 'Governor PDRRMC Chairperson', signature: 'gov_sig.png' }
+        ]).map(s => {
+            if (s && s.name && s.name.includes('YVONE')) {
+                return { ...s, signature: 'gov_sig.png' };
+            }
+            return s;
+        });
 
         const bannerText = data.type === 'completion' ? 'OF COMPLETION' : 'OF RECOGNITION';
         const certIdDisplay = data.type === 'completion' ? `<p class="official-cert-id">ID: training course PDRRMO DAVSUR ${data.id}</p>` : '';
@@ -250,15 +254,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="official-footer-signatories">
                             ${sigs.filter(s => s && s.name && s.name.trim() !== '').map(sig => `
                                 <div class="official-signatory">
+                                    ${sig.signature ? `<img src="${sig.signature}" alt="Signature" class="official-sig-image">` : ''}
                                     <div class="official-sig-line"></div>
                                     <p class="official-sig-name">${sig.name}</p>
                                     <p class="official-sig-title">${sig.title}</p>
                                 </div>
                             `).join('')}
                         </div>
-                        ${certIdDisplay}
                     </div>
                 </div>
+                ${certIdDisplay}
             </div>
         `;
     }

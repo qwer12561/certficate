@@ -1,4 +1,4 @@
-const CACHE_NAME = "cert-system-cache-v3";
+const CACHE_NAME = "cert-system-cache-v6";
 const urlsToCache = [
     "./",
     "./index.html",
@@ -9,7 +9,8 @@ const urlsToCache = [
     "./main.js",
     "./create.js",
     "./view.js",
-    "./reprint.js"
+    "./reprint.js",
+    "./notifications.js"
 ];
 
 self.addEventListener("install", (event) => {
@@ -31,6 +32,8 @@ self.addEventListener("activate", (event) => {
                     }
                 })
             );
+        }).then(() => {
+            return self.clients.claim();
         })
     );
 });

@@ -82,11 +82,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const design = cert.design || 'standard';
             const venue = cert.venue || 'Provincial Capitol';
-            const signatories = cert.signatories || [
-                { name: '', title: 'Training Unit Head PDRRMO Davao del sur' },
-                { name: 'HANIE B. FLORES, RSW', title: 'OIC PDRRMO' },
-                { name: 'HON. YVONE R. CAGAS', title: 'Governor PDRRMC Chairperson' }
-            ];
+            const signatories = (cert.signatories || [
+                { name: 'HANIE B. FLORES, RSW', title: 'OIC PDRRMO', signature: 'sig_transparent.png' },
+                { name: 'HON. YVONE R. CAGAS', title: 'Governor PDRRMC Chairperson', signature: 'gov_sig.png' }
+            ]).map(s => {
+                if (s && s.name && s.name.includes('YVONE')) {
+                    return { ...s, signature: 'gov_sig.png' };
+                }
+                return s;
+            });
 
             const d = new Date(cert.date || new Date());
             const day = !isNaN(d.getTime()) ? d.getDate() : new Date().getDate();
@@ -131,15 +135,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="official-footer-signatories">
                             ${signatories.filter(s => s && s.name && s.name.trim() !== '').map(sig => `
                                 <div class="official-signatory">
+                                    ${sig.signature ? `<img src="${sig.signature}" alt="Signature" class="official-sig-image">` : ''}
                                     <div class="official-sig-line"></div>
                                     <p class="official-sig-name">${sig.name}</p>
                                     <p class="official-sig-title">${sig.title}</p>
                                 </div>
                             `).join('')}
                         </div>
-                        ${certIdDisplay}
                     </div>
                 </div>
+                ${certIdDisplay}
             `;
         } catch (err) {
             console.error('Failed to display certificate:', err);
@@ -182,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
             downloadBtn.textContent = originalText;
         }).catch(err => {
             console.error('PDF Generation Error:', err);
-            alert('Failed to generate PDF. Please try again.');
+            showToast('❌ Failed to generate PDF. Please try again.', 'error');
             downloadBtn.disabled = false;
             downloadBtn.textContent = originalText;
         });

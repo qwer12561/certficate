@@ -62,9 +62,16 @@ document.addEventListener('DOMContentLoaded', () => {
     btnAddRecipient.addEventListener('click', addRecipient);
 
     inputRecipient.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' || e.keyCode === 13) {
             e.preventDefault();
             addRecipient();
+        }
+    });
+
+    // Prevent form submission when pressing Enter in any input field
+    form.addEventListener('keydown', (e) => {
+        if ((e.key === 'Enter' || e.keyCode === 13) && e.target.tagName === 'INPUT' && e.target.id !== 'recipient-name') {
+            e.preventDefault();
         }
     });
 

@@ -1392,8 +1392,8 @@ body {
     left: 55%;
     /* Adjusted from 50% to center the visible ink horizontally */
     transform: translateX(-50%);
-    max-width: 250px;
-    max-height: 120px;
+    max-width: 350px;
+    max-height: 150px;
     z-index: 10;
     pointer-events: none;
     mix-blend-mode: multiply;

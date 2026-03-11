@@ -84,10 +84,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const venue = cert.venue || 'Provincial Capitol';
             const signatories = (cert.signatories || [
                 { name: 'HANIE B. FLORES, RSW', title: 'OIC PDRRMO', signature: 'sig_transparent.png' },
-                { name: 'HON. YVONE R. CAGAS', title: 'Governor PDRRMC Chairperson', signature: 'gov_sig.png' }
+                { name: 'HON. YVONE R. CAGAS', title: 'Governor PDRRMC Chairperson', signature: 'gov.png' }
             ]).map(s => {
                 if (s && s.name && s.name.includes('YVONE')) {
-                    return { ...s, signature: 'gov_sig.png' };
+                    return { ...s, signature: 'gov.png' };
                 }
                 return s;
             });

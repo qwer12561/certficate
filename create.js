@@ -158,12 +158,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const signatories = [
             { name: 'HANIE B. FLORES, RSW', title: 'OIC PDRRMO', signature: 'sig_transparent.png' },
-            { name: 'HON. YVONE R. CAGAS', title: 'Governor PDRRMC Chairperson', signature: 'gov_sig.png' }
+            { name: 'HON. YVONE R. CAGAS', title: 'Governor PDRRMC Chairperson', signature: 'gov.png' }
         ];
 
         // Ensure Yvone always has the signature
         signatories.forEach(s => {
-            if (s.name.includes('YVONE') && !s.signature) s.signature = 'gov_sig.png';
+            if (s.name.includes('YVONE') && !s.signature) s.signature = 'gov.png';
         });
 
         renderUnifiedCertificate({ design, type, recipient: previewName, bodyContent, venue, dateStr, signatories, templatePath: selectedTemplatePath });
@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
             type: type,
             signatories: [
                 { name: 'HANIE B. FLORES, RSW', title: 'OIC PDRRMO', signature: 'sig_transparent.png' },
-                { name: 'HON. YVONE R. CAGAS', title: 'Governor PDRRMC Chairperson', signature: 'gov_sig.png' }
+                { name: 'HON. YVONE R. CAGAS', title: 'Governor PDRRMC Chairperson', signature: 'gov.png' }
             ],
             issuedAt: new Date().toISOString()
         }));

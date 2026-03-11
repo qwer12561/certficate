@@ -1387,14 +1387,16 @@ body {
 
 .official-sig-image {
     position: absolute;
-    bottom: 35px;
-    /* Position it precisely over the line */
-    left: 50%;
+    bottom: 20px;
+    /* Adjusted from 35px to align on the line */
+    left: 55%;
+    /* Adjusted from 50% to center the visible ink horizontally */
     transform: translateX(-50%);
-    max-width: 150px;
-    max-height: 80px;
+    max-width: 250px;
+    max-height: 120px;
     z-index: 10;
     pointer-events: none;
+    mix-blend-mode: multiply;
 }
 
 .official-sig-line {

@@ -1388,15 +1388,25 @@ body {
 .official-sig-image {
     position: absolute;
     bottom: 20px;
-    /* Adjusted from 35px to align on the line */
-    left: 55%;
-    /* Adjusted from 50% to center the visible ink horizontally */
+    left: 50%;
     transform: translateX(-50%);
     max-width: 350px;
     max-height: 150px;
     z-index: 10;
     pointer-events: none;
     mix-blend-mode: multiply;
+}
+
+/* Specific adjustments for different signatures based on their whitespace */
+.official-signatory:nth-child(1) .official-sig-image {
+    bottom: -10px;
+    /* Moved down further to align with the line */
+    left: 48%;
+}
+
+.official-signatory:nth-child(2) .official-sig-image {
+    bottom: 5px;
+    left: 55%;
 }
 
 .official-sig-line {

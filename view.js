@@ -292,7 +292,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (sortValue === 'newest') return dateB - dateA;
             if (sortValue === 'oldest') return dateA - dateB;
-            if (sortValue === 'name') return (a.recipient || '').localeCompare(b.recipient || '');
+            if (sortValue === 'az') return (a.recipient || '').localeCompare(b.recipient || '');
+            if (sortValue === 'za') return (b.recipient || '').localeCompare(a.recipient || '');
             return 0;
         });
 

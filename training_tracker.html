@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0a192f">
+    <title>Training Tracker - Certificate Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=107">
+    <style>
+        /* Spreadsheet Container */
+        .spreadsheet-container {
+            background: #fff;
+            border: 1px solid #ccc;
+            margin-top: 0.5rem;
+            overflow-x: hidden;
+            overflow-y: auto;
+            max-height: calc(100vh - 120px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        /* Spreadsheet Table */
+        .spreadsheet-table {
+            border-collapse: collapse;
+            width: 100%;
+            table-layout: fixed;
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            color: #333;
+        }
+
+        /* Table Headers */
+        .spreadsheet-table th {
+            background-color: #8B0000;
+            color: #fff;
+            padding: 4px 2px;
+            text-align: center;
+            border: 1px solid #a32a2a;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-weight: 700;
+            word-wrap: break-word;
+            white-space: normal;
+            line-height: 1.1;
+        }
+
+        /* Percentage-Based Fluid Widths (Total 100%) */
+        .col-action {
+            width: 2.5%;
+        }
+
+        .col-date {
+            width: 6%;
+        }
+
+        .col-type {
+            width: 7.5%;
+        }
+
+        .col-office {
+            width: 8.5%;
+        }
+
+        .col-activity {
+            width: 10%;
+        }
+
+        .col-participants {
+            width: 10%;
+        }
+
+        .col-pax {
+            width: 4.5%;
+        }
+
+        .col-venue {
+            width: 7.5%;
+        }
+
+        .col-status {
+            width: 8.5%;
+        }
+
+        .col-update {
+            width: 6%;
+        }
+
+        .col-docs {
+            width: 6.5%;
+        }
+
+        .spreadsheet-table td {
+            padding: 0;
+            border: 1px solid #d4d4d4;
+            background: #fff;
+            position: relative;
+            height: 42px;
+            overflow: hidden;
+        }
+
+        /* Inputs inside cells */
+        .spreadsheet-table input,
+        .spreadsheet-table textarea,
+        .spreadsheet-table select {
+            width: 100%;
+            height: 100%;
+            min-height: 24px;
+            border: none;
+            padding: 2px 4px;
+            background: transparent;
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            color: #333;
+            box-sizing: border-box;
+            outline: none;
+            resize: none;
+        }
+
+        .spreadsheet-table textarea {
+            min-height: 42px;
+        }
+
+        /* Overriding Dashboard Padding for Max Space */
+        .main-content {
+            padding: 1rem !important;
+            width: calc(100% - 280px) !important;
+            margin-left: 280px !important;
+        }
+
+        /* Editable focused state */
+        .spreadsheet-table input:focus,
+        .spreadsheet-table textarea:focus,
+        .spreadsheet-table select:focus {
+            background: #f0f8ff;
+            /* Light blue highlight on focus */
+            outline: 2px solid #2ecc71;
+            outline-offset: -2px;
+            z-index: 5;
+            position: relative;
+        }
+
+        /* Row Actions */
+        .row-action-btn {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+            padding: 4px;
+            opacity: 0.3;
+            transition: opacity 0.2s;
+        }
+
+        .spreadsheet-table tr:hover .row-action-btn {
+            opacity: 1;
+        }
+
+        /* Specific Status select styling to simulate pill */
+        .select-status {
+            font-weight: bold;
+        }
+
+        /* The row used for Adding New */
+        .new-entry-row td {
+            background: #f9f9f9;
+        }
+
+        .new-entry-row input,
+        .new-entry-row select,
+        .new-entry-row textarea {
+            font-style: italic;
+        }
+
+        /* Override main layout settings */
+        body {
+            background: var(--bg-color, #0a192f);
+            margin: 0;
+            padding: 0;
+            overflow: auto;
+        }
+
+        .header-title-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #ff5252;
+            padding-bottom: 0.5rem;
+        }
+
+        .header-title-container h1 {
+            color: #fff;
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 800;
+        }
+
+        .saving-text {
+            color: #a0aabf;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        /* Dropdown Pill Styles */
+        .pill-select {
+            border-radius: 12px !important;
+            padding: 2px 10px !important;
+            font-weight: 600 !important;
+            text-align: center;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        /* Activity Types */
+        select[name="type_of_activity"][data-value="Invitational"],
+        .pill-invitational {
+            background-color: #e3f2fd !important;
+            color: #1565c0 !important;
+        }
+
+        select[name="type_of_activity"][data-value="Host"],
+        .pill-host {
+            background-color: #fce4ec !important;
+            color: #c2185b !important;
+        }
+
+        select[name="type_of_activity"][data-value="Participant"],
+        .pill-participant {
+            background-color: #ffebee !important;
+            color: #c62828 !important;
+        }
+
+        select[name="type_of_activity"][data-value="All"],
+        .pill-all {
+            background-color: #f8bbd0 !important;
+            color: #880e4f !important;
+        }
+
+        /* Statuses */
+        select[name="status"][data-value="Implemented"],
+        .pill-implemented {
+            background-color: #e3f2fd !important;
+            color: #1565c0 !important;
+        }
+
+        select[name="status"][data-value="In progress"],
+        .pill-inprogress {
+            background-color: #fff9c4 !important;
+            color: #f9a825 !important;
+        }
+
+        select[name="status"][data-value="Under review"],
+        .pill-underreview {
+            background-color: #ffe0b2 !important;
+            color: #ef6c00 !important;
+        }
+
+        select[name="status"][data-value="Suspended"],
+        .pill-suspended {
+            background-color: #ffc10740 !important;
+            color: #ff5252 !important;
+            border: 1px solid #ff5252;
+        }
+
+        select[name="status"][data-value="Paused"],
+        .pill-paused {
+            background-color: #e8f5e9 !important;
+            color: #2e7d32 !important;
+        }
+
+        /* Add Event & Export buttons (Unified Glassmorphism Style) */
+        .btn-add-event,
+        .btn-export-excel {
+            border-width: 1.5px;
+            border-style: solid;
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Center content */
+            gap: 10px;
+            font-size: 13px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            min-width: 160px;
+            /* Symmetrical width */
+            height: 40px;
+            /* Symmetrical height */
+            background: rgba(100, 255, 218, 0.15);
+            /* Shared Mint color */
+            border-color: #64ffda;
+            color: #64ffda;
+        }
+
+        .btn-add-event span,
+        .btn-export-excel span {
+            font-weight: 900;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-add-event:hover,
+        .btn-export-excel:hover {
+            background: rgba(100, 255, 218, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(100, 255, 218, 0.2);
+            color: #fff;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: #0a192f;
+            border: 1px solid #233554;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2rem;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #233554;
+            padding-bottom: 1rem;
+        }
+
+        .modal-title {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .btn-close {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
+        .modal-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .form-full {
+            grid-column: 1 / span 2;
+        }
+
+        .modal-form label {
+            display: block;
+            color: #8892b0;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .modal-form input,
+        .modal-form select,
+        .modal-form textarea {
+            width: 100%;
+            background: #112240;
+            border: 1px solid #233554;
+            color: #e6f1ff;
+            padding: 10px;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .modal-form input:focus {
+            border-color: #ff5252;
+        }
+
+        /* Cell Link Icon */
+        .cell-link-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .cell-link-icon {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #1565c0;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 2px 5px;
+            border-radius: 4px;
+            background: rgba(21, 101, 192, 0.1);
+            display: none;
+            z-index: 2;
+        }
+
+        .cell-link-container:hover .cell-link-icon {
+            display: block;
+        }
+
+        .cell-link-icon:hover {
+            background: rgba(21, 101, 192, 0.2);
+            color: #0d47a1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="video-bg">
+        <div class="overlay"></div>
+    </div>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <a href="index.html" class="sidebar-logo">
+                <span class="logo-icon">📜</span>
+                <span class="logo-text">Certificate System</span>
+            </a>
+            <nav class="sidebar-nav">
+                <a href="create.html" class="nav-item">
+                    <i>➕</i> <span>Create New</span>
+                </a>
+                <a href="view.html" class="nav-item">
+                    <i>📂</i> <span>View All</span>
+                </a>
+                <a href="reprint.html" class="nav-item">
+                    <i>🖨️</i> <span>Reprint</span>
+                </a>
+                <a href="training_tracker.html" class="nav-item active">
+                    <i>📊</i> <span>Training Tracker</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <p>&copy; 2026 Certificate System</p>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="header-title-container">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <h1>Training Tracker</h1>
+                    <button class="btn-add-event" id="btn-add-event">
+                        <span>+</span> Add Event
+                    </button>
+                    <button class="btn-export-excel" id="btn-export-excel">
+                        <span>📊</span> Export to Excel
+                    </button>
+                </div>
+                <span class="saving-text">Changes auto-save automatically</span>
+            </div>
+
+            <!-- The actual spreadsheet container -->
+            <div class="spreadsheet-container" style="border-radius: 8px;">
+                <table class="spreadsheet-table" id="spreadsheet-table">
+                    <thead>
+                        <tr>
+                            <th class="col-action"></th> <!-- Action column -->
+                            <th class="col-date">📅 Start date</th>
+                            <th class="col-date">📅 End Date</th>
+                            <th class="col-type">Type of Activity</th>
+                            <th class="col-office">Host Office</th>
+                            <th class="col-activity">Activity</th>
+                            <th class="col-participants">Instructor / Participants</th>
+                            <th class="col-pax">No. of Pax</th>
+                            <th class="col-venue">Venue</th>
+                            <th class="col-status">Status</th>
+                            <th class="col-update">Status Update</th>
+                            <th class="col-update">Status Update</th>
+                            <th class="col-update">Status Update</th>
+                            <th class="col-docs">Documentations</th>
+                            <th class="col-docs">Reports</th>
+                        </tr>
+                    </thead>
+                    <tbody id="spreadsheet-body">
+                        <!-- Rows injected via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Event Modal -->
+    <div class="modal-overlay" id="add-event-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Training Event</h2>
+                <button class="btn-close" id="btn-close-modal">&times;</button>
+            </div>
+            <form id="add-event-form" class="modal-form">
+                <div class="modal-form-grid">
+                    <div>
+                        <label>Start Date</label>
+                        <input type="date" name="start_date" required>
+                    </div>
+                    <div>
+                        <label>End Date</label>
+                        <input type="date" name="end_date" required>
+                    </div>
+                    <div>
+                        <label>Type of Activity</label>
+                        <select name="type_of_activity" required>
+                            <option value="Invitational">Invitational</option>
+                            <option value="Host">Host</option>
+                            <option value="Participant">Participant</option>
+                            <option value="All">All</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Status</label>
+                        <select name="status" required>
+                            <option value="Implemented">Implemented</option>
+                            <option value="In progress">In progress</option>
+                            <option value="Under review">Under review</option>
+                            <option value="Suspended">Suspended</option>
+                            <option value="Paused">Paused</option>
+                        </select>
+                    </div>
+                    <div class="form-full">
+                        <label>Activity Name</label>
+                        <input type="text" name="activity" required placeholder="e.g. First Aid Training">
+                    </div>
+                    <div class="form-full">
+                        <label>Host Office</label>
+                        <input type="text" name="host_office" placeholder="e.g. UM Bansalan">
+                    </div>
+                    <div class="form-full">
+                        <label>Instructor / Participants</label>
+                        <textarea name="instructor_participants" rows="3" placeholder="List participants..."></textarea>
+                    </div>
+                    <div>
+                        <label>No. of Pax</label>
+                        <input type="number" name="no_of_pax" value="0">
+                    </div>
+                    <div>
+                        <label>Venue</label>
+                        <input type="text" name="venue" placeholder="e.g. Gymnasium">
+                    </div>
+                    <div>
+                        <label>Status Update 1</label>
+                        <input type="text" name="status_update_1">
+                    </div>
+                    <div>
+                        <label>Status Update 2</label>
+                        <input type="text" name="status_update_2">
+                    </div>
+                    <div>
+                        <label>Status Update 3</label>
+                        <input type="text" name="status_update_3">
+                    </div>
+                    <div class="form-full">
+                        <label>Documentations</label>
+                        <input type="text" name="documentations">
+                    </div>
+                    <div class="form-full">
+                        <label>Reports</label>
+                        <input type="text" name="reports">
+                    </div>
+                </div>
+                <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
+                    <button type="button" class="btn-secondary" id="btn-cancel-modal"
+                        style="background: transparent; border: 1px solid #233554; color: #fff; padding: 10px 20px; border-radius: 4px; cursor: pointer;">Cancel</button>
+                    <button type="submit" class="btn-add-event">Save Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+    <script src="notifications.js?v=2"></script>
+    <script src="training_tracker.js?v=2"></script>
+</body>
+
+</html>

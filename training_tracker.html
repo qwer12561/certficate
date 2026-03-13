@@ -418,35 +418,160 @@
             border-color: #ff5252;
         }
 
-        /* Cell Link Icon */
+        /* Updated Cell Link Pill Styles */
         .cell-link-container {
             position: relative;
             width: 100%;
             height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 2px 6px;
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+
+        .cell-link-container.has-content {
+            background: #f0f2f5;
+            border-radius: 20px;
+            margin: 4px;
+            width: calc(100% - 8px);
+            height: calc(100% - 8px);
+        }
+
+        .cell-link-container .cell-icon,
+        .cell-link-container .cell-icon-link {
+            font-size: 14px;
+            margin-right: 6px;
+            display: none;
+            text-decoration: none;
+            line-height: 1;
+        }
+
+        .cell-link-container.has-content .cell-icon,
+        .cell-link-container.has-content .cell-icon-link {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .cell-icon-link {
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .cell-icon-link:hover {
+            transform: scale(1.3);
+        }
+
+        .spreadsheet-table .cell-link-container input {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            width: 100%;
+        }
+
+        /* Hide the redundant link icon when pill icon is clickable */
+        .cell-link-container.has-content .cell-link-icon {
+            display: none !important;
         }
 
         .cell-link-icon {
             position: absolute;
-            right: 5px;
+            right: 8px;
             top: 50%;
             transform: translateY(-50%);
             color: #1565c0;
             text-decoration: none;
             font-size: 14px;
-            padding: 2px 5px;
-            border-radius: 4px;
-            background: rgba(21, 101, 192, 0.1);
-            display: none;
             z-index: 2;
+            opacity: 0.6;
         }
 
         .cell-link-container:hover .cell-link-icon {
-            display: block;
+            opacity: 1;
         }
 
-        .cell-link-icon:hover {
-            background: rgba(21, 101, 192, 0.2);
-            color: #0d47a1;
+        .cell-link-container.has-content input {
+            color: #1565c0 !important;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        /* Name Pills for Instructor / Participants */
+        .name-pills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 4px;
+            pointer-events: none;
+            /* Let clicks pass through to textarea beneath */
+        }
+
+        .name-pill {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid #bbdefb;
+            white-space: nowrap;
+        }
+
+        .instructor-cell {
+            position: relative;
+            min-height: 60px;
+        }
+
+        .instructor-cell textarea {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            z-index: 1;
+            resize: none;
+            transition: opacity 0.2s;
+        }
+
+        .instructor-cell textarea:focus {
+            opacity: 1;
+            z-index: 3;
+            background: white !important;
+        }
+
+        .instructor-cell:hover .name-pills-container {
+            opacity: 0.3;
+        }
+
+        .btn-view-instructors {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            background: rgba(21, 101, 192, 0.1);
+            color: #1565c0;
+            border: 1px solid #1565c0;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 5;
+            transition: all 0.2s;
+            opacity: 0;
+        }
+
+        .instructor-cell:hover .btn-view-instructors {
+            opacity: 1;
+        }
+
+        .btn-view-instructors:hover {
+            background: #1565c0;
+            color: #fff;
+            transform: translateY(-50%) scale(1.1);
         }
     </style>
 </head>
@@ -512,8 +637,8 @@
                             <th class="col-update">Status Update</th>
                             <th class="col-update">Status Update</th>
                             <th class="col-update">Status Update</th>
-                            <th class="col-docs">Documentations</th>
-                            <th class="col-docs">Reports</th>
+                            <th class="col-docs">🔗 Documentations</th>
+                            <th class="col-docs">📊 Reports</th>
                         </tr>
                     </thead>
                     <tbody id="spreadsheet-body">
@@ -610,10 +735,33 @@
         </div>
     </div>
 
+    <!-- Instructor View/Edit Modal -->
+    <div class="modal-overlay" id="instructor-view-modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Instructor / Participants</h2>
+                <button class="btn-close" id="btn-close-instructor-modal">&times;</button>
+            </div>
+            <div style="padding: 20px;">
+                <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">Edit the names below. Separate multiple
+                    names with commas.</p>
+                <textarea id="modal-instructor-textarea"
+                    style="width: 100%; height: 250px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; font-size: 15px; line-height: 1.6; resize: vertical;"
+                    placeholder="John Doe, Jane Smith..."></textarea>
+                <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+                    <button type="button" class="btn-secondary" id="btn-cancel-instructor-modal"
+                        style="background: transparent; border: 1px solid #e2e8f0; color: #64748b; padding: 10px 20px; border-radius: 4px; cursor: pointer;">Cancel</button>
+                    <button type="button" class="btn-add-event" id="btn-save-instructor-modal">Update Names</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification Container -->
     <div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
     <script src="notifications.js?v=2"></script>
     <script src="training_tracker.js?v=2"></script>

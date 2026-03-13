@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize
     fetchRecords();
     setupModal();
+    setupInstructorModal();
     setupExport();
 
     // ----------------------------------------------------
@@ -22,55 +23,206 @@ document.addEventListener('DOMContentLoaded', () => {
         const btnExport = document.getElementById('btn-export-excel');
         if (!btnExport) return;
 
-        btnExport.addEventListener('click', () => {
+        btnExport.addEventListener('click', async () => {
+            // 0. Fetch latest records before export to ensure no stale data
+            try {
+                const refreshRes = await fetch(API_URL);
+                const refreshResult = await refreshRes.json();
+                if (refreshResult.success) {
+                    records = refreshResult.data || [];
+                }
+            } catch (err) {
+                console.error('Pre-export refresh failed', err);
+            }
+
             if (records.length === 0) {
                 showToast('No data to export', 'error');
                 return;
             }
 
-            // 1. Prepare Data for SheetJS
-            const headers = [
-                'Start Date', 'End Date', 'Type', 'Host Office', 'Activity',
-                'Instructor/Participants', 'Pax', 'Venue', 'Status',
-                'Status Update 1', 'Status Update 2', 'Status Update 3',
-                'Documentations', 'Reports'
-            ];
+            try {
+                // 1. Create Workbook and Worksheet
+                const workbook = new ExcelJS.Workbook();
+                const worksheet = workbook.addWorksheet('Training Tracker');
 
-            const excelData = records.map(r => [
-                r.start_date || '',
-                r.end_date || '',
-                r.type_of_activity || '',
-                r.host_office || '',
-                r.activity || '',
-                r.instructor_participants || '',
-                r.no_of_pax || 0,
-                r.venue || '',
-                r.status || '',
-                r.status_update_1 || '',
-                r.status_update_2 || '',
-                r.status_update_3 || '',
-                r.documentations || '',
-                r.reports || ''
-            ]);
+                // 2. Define Headers with Icons
+                const headerData = [
+                    { header: '📅 Start Date', key: 'start_date', width: 15 },
+                    { header: '📅 End Date', key: 'end_date', width: 15 },
+                    { header: '🔘 Type', key: 'type', width: 15 },
+                    { header: '🔤 Host Office', key: 'host_office', width: 25 },
+                    { header: '🔤 Activity', key: 'activity', width: 45 },
+                    { header: '👥 Instructor / Participants', key: 'participants', width: 45 },
+                    { header: '🔢 Pax', key: 'pax', width: 10 },
+                    { header: '📍 Venue', key: 'venue', width: 25 },
+                    { header: '🔘 Status', key: 'status', width: 15 },
+                    { header: '📝 Update 1', key: 'up1', width: 20 },
+                    { header: '📝 Update 2', key: 'up2', width: 20 },
+                    { header: '📝 Update 3', key: 'up3', width: 20 },
+                    { header: '🔗 Documentations', key: 'docs', width: 20 },
+                    { header: '📊 Reports', key: 'reports', width: 20 }
+                ];
 
-            // Combine headers and data
-            const finalData = [headers, ...excelData];
+                worksheet.columns = headerData;
 
-            // 2. Create Workbook and Worksheet
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.aoa_to_sheet(finalData);
+                // 3. Add Data
+                records.forEach(r => {
+                    worksheet.addRow({
+                        start_date: r.start_date || '',
+                        end_date: r.end_date || '',
+                        type: r.type_of_activity || '',
+                        host_office: r.host_office || '',
+                        activity: r.activity || '',
+                        participants: r.instructor_participants || '',
+                        pax: r.no_of_pax || 0,
+                        venue: r.venue || '',
+                        status: r.status || '',
+                        up1: r.status_update_1 || '',
+                        up2: r.status_update_2 || '',
+                        up3: r.status_update_3 || '',
+                        docs: r.documentations || '',
+                        reports: r.reports || ''
+                    });
+                });
 
-            // 3. Simple Styling (Column Widths)
-            const wscols = headers.map(() => ({ wch: 20 })); // Set default column width to 20
-            wscols[4] = { wch: 40 }; // Activity column wider
-            wscols[5] = { wch: 40 }; // Participants column wider
-            ws['!cols'] = wscols;
+                // 4. Style Header Row (Maroon background, White bold text)
+                const headerRow = worksheet.getRow(1);
+                headerRow.eachCell((cell) => {
+                    cell.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: 'FF8B0000' } // Maroon
+                    };
+                    cell.font = {
+                        color: { argb: 'FFFFFFFF' }, // White
+                        bold: true,
+                        size: 11
+                    };
+                    cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+                    cell.border = {
+                        top: { style: 'thin', color: { argb: 'FFA32A2A' } },
+                        left: { style: 'thin', color: { argb: 'FFA32A2A' } },
+                        bottom: { style: 'thin', color: { argb: 'FFA32A2A' } },
+                        right: { style: 'thin', color: { argb: 'FFA32A2A' } }
+                    };
+                });
+                headerRow.height = 30;
 
-            // 4. Append and Save
-            XLSX.utils.book_append_sheet(wb, ws, "Training Tracker");
-            XLSX.writeFile(wb, `Training_Tracker_${new Date().toISOString().split('T')[0]}.xlsx`);
+                // 5. Style Data Rows (Borders and alignment)
+                worksheet.eachRow((row, rowNumber) => {
+                    if (rowNumber === 1) return; // Skip header
 
-            showToast('Professional Excel Exported!', 'success');
+                    row.eachCell((cell, colNumber) => {
+                        cell.border = {
+                            top: { style: 'thin', color: { argb: 'FFD4D4D4' } },
+                            left: { style: 'thin', color: { argb: 'FFD4D4D4' } },
+                            bottom: { style: 'thin', color: { argb: 'FFD4D4D4' } },
+                            right: { style: 'thin', color: { argb: 'FFD4D4D4' } }
+                        };
+                        cell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+
+                        // Center Pax and Type columns
+                        if (colNumber === 7 || colNumber === 3) {
+                            cell.alignment.horizontal = 'center';
+                        }
+
+                        // Format Instructor / Participants (Col 6) with numbering if multiple
+                        if (colNumber === 6) {
+                            const val = cell.value ? cell.value.toString() : '';
+                            // Split by comma OR any newline sequence
+                            if (val.includes(',') || val.includes('\n') || val.includes('\r')) {
+                                const names = val.split(/[,\n\r]+/).map(n => n.trim()).filter(n => n);
+                                if (names.length > 1) {
+                                    // Change from bullet to sequential numbering
+                                    cell.value = names.map((n, index) => `${index + 1}. ${n}`).join('\n');
+                                    cell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+                                }
+                            }
+                        }
+
+                        // Style Documentations (Col 13) and Reports (Col 14) as Pills
+                        if (colNumber === 13 || colNumber === 14) {
+                            const val = cell.value ? cell.value.toString() : '';
+                            if (val) {
+                                // Add icons: 📁 for Docs, 📝 for Reports
+                                if (cell.column === 13 && !val.includes('📁')) {
+                                    cell.value = '📁 ' + val;
+                                } else if (cell.column === 14 && !val.includes('📝')) {
+                                    cell.value = '📝 ' + val;
+                                }
+
+                                // Background for "pill" effect
+                                cell.fill = {
+                                    type: 'pattern',
+                                    pattern: 'solid',
+                                    fgColor: { argb: 'FFF0F2F5' }
+                                };
+
+                                // Font styling
+                                cell.font = { color: { argb: 'FF000000' }, size: 10 };
+
+                                if (val.includes('http')) {
+                                    cell.font.color = { argb: 'FF0000FF' };
+                                    cell.font.underline = true;
+                                }
+
+                                cell.alignment = {
+                                    vertical: 'middle',
+                                    horizontal: 'left',
+                                    indent: 1,
+                                    wrapText: false
+                                };
+                            }
+                        }
+                    });
+                });
+
+                // 6. Data Validation (Dropdowns for Type and Status)
+                // Type of Activity dropdown (Col 3)
+                const typeDropdown = ['Invitational', 'Host', 'Participant', 'All'];
+                worksheet.getColumn(3).eachCell((cell, rowNumber) => {
+                    if (rowNumber > 1) {
+                        cell.dataValidation = {
+                            type: 'list',
+                            allowBlank: true,
+                            formulae: [`"${typeDropdown.join(',')}"`],
+                            showErrorMessage: true,
+                            errorTitle: 'Invalid Selection',
+                            error: 'Please select from the list.'
+                        };
+                    }
+                });
+
+                // Status dropdown (Col 9)
+                const statusDropdown = ['Implemented', 'In progress', 'Under review', 'Suspended', 'Paused'];
+                worksheet.getColumn(9).eachCell((cell, rowNumber) => {
+                    if (rowNumber > 1) {
+                        cell.dataValidation = {
+                            type: 'list',
+                            allowBlank: true,
+                            formulae: [`"${statusDropdown.join(',')}"`],
+                            showErrorMessage: true,
+                            errorTitle: 'Invalid Status',
+                            error: 'Please select a valid status.'
+                        };
+                    }
+                });
+
+                // 7. Generate and Download
+                const buffer = await workbook.xlsx.writeBuffer();
+                const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Training_Tracker_${new Date().toISOString().split('T')[0]}.xlsx`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+
+                showToast('Professional Excel Exported!', 'success');
+            } catch (error) {
+                console.error('Export Error:', error);
+                showToast('Failed to export Excel', 'error');
+            }
         });
     }
 
@@ -189,7 +341,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
                 <td><input type="text" name="host_office" value="${safeVal(record.host_office)}"></td>
                 <td><input type="text" name="activity" value="${safeVal(record.activity)}"></td>
-                <td><textarea name="instructor_participants" rows="2">${safeVal(record.instructor_participants)}</textarea></td>
+                <td class="instructor-cell">
+                    <div class="name-pills-container">
+                        ${(record.instructor_participants || '').split(',').map(name => name.trim()).filter(name => name).map(name => `<span class="name-pill">${name}</span>`).join('')}
+                    </div>
+                    <textarea name="instructor_participants" rows="2">${safeVal(record.instructor_participants)}</textarea>
+                    <button class="btn-view-instructors" onclick="openInstructorModal(this)" title="View/Edit Names">👁</button>
+                </td>
                 <td><input type="number" name="no_of_pax" value="${record.no_of_pax || ''}" style="text-align: right;"></td>
                 <td><input type="text" name="venue" value="${safeVal(record.venue)}"></td>
                 <td>
@@ -206,13 +364,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td><input type="text" name="status_update_2" value="${safeVal(record.status_update_2)}"></td>
                 <td><input type="text" name="status_update_3" value="${safeVal(record.status_update_3)}"></td>
                 <td>
-                    <div class="cell-link-container">
+                    <div class="cell-link-container ${docsVal ? 'has-content' : ''}">
+                        ${docsVal && isUrl(docsVal)
+                ? `<a href="${docsVal}" target="_blank" class="cell-icon-link" title="Open Link">📁</a>`
+                : `<span class="cell-icon">📁</span>`}
                         <input type="text" name="documentations" value="${docsVal}" placeholder="Link or text">
                         ${docsVal && isUrl(docsVal) ? `<a href="${docsVal}" target="_blank" class="cell-link-icon" title="Open Link">🔗</a>` : ''}
                     </div>
                 </td>
                 <td>
-                    <div class="cell-link-container">
+                    <div class="cell-link-container ${reportsVal ? 'has-content' : ''}">
+                        ${reportsVal && isUrl(reportsVal)
+                ? `<a href="${reportsVal}" target="_blank" class="cell-icon-link" title="Open Link">📝</a>`
+                : `<span class="cell-icon">📝</span>`}
                         <input type="text" name="reports" value="${reportsVal}" placeholder="Link or text">
                         ${reportsVal && isUrl(reportsVal) ? `<a href="${reportsVal}" target="_blank" class="cell-link-icon" title="Open Link">🔗</a>` : ''}
                     </div>
@@ -259,18 +423,62 @@ document.addEventListener('DOMContentLoaded', () => {
         // Handle link icons for Documentations and Reports
         if (input.name === 'documentations' || input.name === 'reports') {
             const container = input.parentElement;
+            const val = input.value;
+            const isLink = val && (val.startsWith('http://') || val.startsWith('https://'));
+
+            // Clean up existing elements
             const existingLink = container.querySelector('.cell-link-icon');
             if (existingLink) existingLink.remove();
 
-            const val = input.value;
-            if (val && (val.startsWith('http://') || val.startsWith('https://'))) {
+            // Handle Icon (Wrapper for Link or Span)
+            const iconChar = input.name === 'documentations' ? '📁' : '📝';
+            let iconElement = container.querySelector('.cell-icon, .cell-icon-link');
+            if (iconElement) {
+                // Remove the old one to rebuild
+                iconElement.remove();
+            }
+
+            // Create new icon element
+            if (isLink) {
                 const link = document.createElement('a');
                 link.href = val;
                 link.target = '_blank';
-                link.className = 'cell-link-icon';
+                link.className = 'cell-icon-link';
                 link.title = 'Open Link';
-                link.innerText = '🔗';
-                container.appendChild(link);
+                link.innerText = iconChar;
+                container.prepend(link);
+            } else {
+                const span = document.createElement('span');
+                span.className = 'cell-icon';
+                span.innerText = iconChar;
+                container.prepend(span);
+            }
+
+            // Toggle has-content class for pill styling
+            if (val) {
+                container.classList.add('has-content');
+            } else {
+                container.classList.remove('has-content');
+            }
+
+            // Add back the standard 🔗 icon if it's a link (though CSS will hide it if it's in a pill)
+            if (isLink) {
+                const linkIcon = document.createElement('a');
+                linkIcon.href = val;
+                linkIcon.target = '_blank';
+                linkIcon.className = 'cell-link-icon';
+                linkIcon.title = 'Open Link';
+                linkIcon.innerText = '🔗';
+                container.appendChild(linkIcon);
+            }
+        }
+
+        // Handle name pills for Instructor / Participants
+        if (input.name === 'instructor_participants' || input.name === 'instructor_participants[]') {
+            const container = row.querySelector('.name-pills-container');
+            if (container) {
+                const names = input.value.split(',').map(n => n.trim()).filter(n => n);
+                container.innerHTML = names.map(n => `<span class="name-pill">${n}</span>`).join('');
             }
         }
 
@@ -380,5 +588,42 @@ document.addEventListener('DOMContentLoaded', () => {
             toast.style.opacity = '0';
             setTimeout(() => toast.remove(), 200);
         }, small ? 1500 : 3000);
+    }
+
+    // ----------------------------------------------------
+    // Instructor View Modal Logic
+    // ----------------------------------------------------
+    let currentInstructorRow = null;
+    let currentInstructorInput = null;
+
+    function setupInstructorModal() {
+        const modal = document.getElementById('instructor-view-modal');
+        const btnClose = document.getElementById('btn-close-instructor-modal');
+        const btnCancel = document.getElementById('btn-cancel-instructor-modal');
+        const btnSave = document.getElementById('btn-save-instructor-modal');
+        const textarea = document.getElementById('modal-instructor-textarea');
+
+        const closeModal = () => modal.classList.remove('active');
+
+        btnClose.onclick = closeModal;
+        btnCancel.onclick = closeModal;
+
+        btnSave.onclick = async () => {
+            if (currentInstructorInput && currentInstructorRow) {
+                currentInstructorInput.value = textarea.value;
+                // Trigger change to save to DB and update pills
+                handleCellChange(currentInstructorInput, currentInstructorRow);
+                closeModal();
+            }
+        };
+
+        // Expose openInstructorModal to window
+        window.openInstructorModal = (btn) => {
+            currentInstructorRow = btn.closest('tr');
+            currentInstructorInput = currentInstructorRow.querySelector('textarea[name="instructor_participants"]');
+            textarea.value = currentInstructorInput.value;
+            modal.classList.add('active');
+            setTimeout(() => textarea.focus(), 100);
+        };
     }
 });

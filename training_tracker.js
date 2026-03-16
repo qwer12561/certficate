@@ -6,10 +6,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let records = [];
 
     // Initialize
-    fetchRecords();
+    let localFileHandle = null;
+
+    fetchRecords().then(() => {
+        // Initial sync to server master
+        syncToExcel(true);
+    });
     setupModal();
     setupInstructorModal();
     setupExport();
+
+    let syncTimeout;
+    const SYNC_DELAY = 1000; // 1 second debounce for cell changes
 
     // ----------------------------------------------------
     // API & Data Fetching
@@ -17,211 +25,311 @@ document.addEventListener('DOMContentLoaded', () => {
     // ... (rest of fetchRecords)
 
     // ----------------------------------------------------
-    // Export to Excel (CSV) logic
+    // Excel Generation & Sync Logic
     // ----------------------------------------------------
+    async function generateExcelWorkbook() {
+        // 0. Fetch latest records before generation to ensure no stale data
+        try {
+            const refreshRes = await fetch(API_URL);
+            const refreshResult = await refreshRes.json();
+            if (refreshResult.success) {
+                records = refreshResult.data || [];
+            }
+        } catch (err) {
+            console.error('Pre-export refresh failed', err);
+        }
+
+        if (records.length === 0) {
+            return null;
+        }
+
+        // 1. Create Workbook and Worksheet
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Training Tracker');
+
+        // 2. Define Headers with Icons
+        const headerData = [
+            { header: '📅 Start Date', key: 'start_date', width: 15 },
+            { header: '📅 End Date', key: 'end_date', width: 15 },
+            { header: '🔘 Type', key: 'type', width: 15 },
+            { header: '🔤 Host Office', key: 'host_office', width: 25 },
+            { header: '🔤 Activity', key: 'activity', width: 45 },
+            { header: '👥 Instructor / Participants', key: 'participants', width: 45 },
+            { header: '🔢 Pax', key: 'pax', width: 10 },
+            { header: '📍 Venue', key: 'venue', width: 25 },
+            { header: '🔘 Status', key: 'status', width: 15 },
+            { header: '📝 Update 1', key: 'up1', width: 20 },
+            { header: '📝 Update 2', key: 'up2', width: 20 },
+            { header: '📝 Update 3', key: 'up3', width: 20 },
+            { header: '🔗 Documentations', key: 'docs', width: 20 },
+            { header: '📊 Reports', key: 'reports', width: 20 }
+        ];
+
+        worksheet.columns = headerData;
+
+        // 3. Add Data
+        records.forEach(r => {
+            worksheet.addRow({
+                start_date: r.start_date || '',
+                end_date: r.end_date || '',
+                type: r.type_of_activity || '',
+                host_office: r.host_office || '',
+                activity: r.activity || '',
+                participants: r.instructor_participants || '',
+                pax: r.no_of_pax || 0,
+                venue: r.venue || '',
+                status: r.status || '',
+                up1: r.status_update_1 || '',
+                up2: r.status_update_2 || '',
+                up3: r.status_update_3 || '',
+                docs: r.documentations || '',
+                reports: r.reports || ''
+            });
+        });
+
+        // 4. Style Header Row (Maroon background, White bold text)
+        const headerRow = worksheet.getRow(1);
+        headerRow.eachCell((cell) => {
+            cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FF8B0000' } // Maroon
+            };
+            cell.font = {
+                color: { argb: 'FFFFFFFF' }, // White
+                bold: true,
+                size: 11
+            };
+            cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+            cell.border = {
+                top: { style: 'thin', color: { argb: 'FFA32A2A' } },
+                left: { style: 'thin', color: { argb: 'FFA32A2A' } },
+                bottom: { style: 'thin', color: { argb: 'FFA32A2A' } },
+                right: { style: 'thin', color: { argb: 'FFA32A2A' } }
+            };
+        });
+        headerRow.height = 30;
+
+        // 5. Style Data Rows (Borders and alignment)
+        worksheet.eachRow((row, rowNumber) => {
+            if (rowNumber === 1) return; // Skip header
+
+            row.eachCell((cell, colNumber) => {
+                cell.border = {
+                    top: { style: 'thin', color: { argb: 'FFD4D4D4' } },
+                    left: { style: 'thin', color: { argb: 'FFD4D4D4' } },
+                    bottom: { style: 'thin', color: { argb: 'FFD4D4D4' } },
+                    right: { style: 'thin', color: { argb: 'FFD4D4D4' } }
+                };
+                cell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+
+                // Center Pax and Type columns
+                if (colNumber === 7 || colNumber === 3) {
+                    cell.alignment.horizontal = 'center';
+                }
+
+                // Format Instructor / Participants (Col 6) with numbering if multiple
+                if (colNumber === 6) {
+                    const val = cell.value ? cell.value.toString() : '';
+                    // Split by comma OR any newline sequence
+                    if (val.includes(',') || val.includes('\n') || val.includes('\r')) {
+                        const names = val.split(/[,\n\r]+/).map(n => n.trim()).filter(n => n);
+                        if (names.length > 1) {
+                            // Change from bullet to sequential numbering
+                            cell.value = names.map((n, index) => `${index + 1}. ${n}`).join('\n');
+                            cell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+                        }
+                    }
+                }
+
+                // Style Documentations (Col 13) and Reports (Col 14) as Pills
+                if (colNumber === 13 || colNumber === 14) {
+                    const val = cell.value ? cell.value.toString() : '';
+                    if (val) {
+                        // Add icons: 📁 for Docs, 📝 for Reports
+                        if (cell.column === 13 && !val.includes('📁')) {
+                            cell.value = '📁 ' + val;
+                        } else if (cell.column === 14 && !val.includes('📝')) {
+                            cell.value = '📝 ' + val;
+                        }
+
+                        // Background for "pill" effect
+                        cell.fill = {
+                            type: 'pattern',
+                            pattern: 'solid',
+                            fgColor: { argb: 'FFF0F2F5' }
+                        };
+
+                        // Font styling
+                        cell.font = { color: { argb: 'FF000000' }, size: 10 };
+
+                        if (val.includes('http')) {
+                            cell.font.color = { argb: 'FF0000FF' };
+                            cell.font.underline = true;
+                        }
+
+                        cell.alignment = {
+                            vertical: 'middle',
+                            horizontal: 'left',
+                            indent: 1,
+                            wrapText: false
+                        };
+                    }
+                }
+            });
+        });
+
+        // 6. Data Validation (Dropdowns for Type and Status)
+        // Type of Activity dropdown (Col 3)
+        const typeDropdown = ['Invitational', 'Host', 'Participant', 'All'];
+        worksheet.getColumn(3).eachCell((cell, rowNumber) => {
+            if (rowNumber > 1) {
+                cell.dataValidation = {
+                    type: 'list',
+                    allowBlank: true,
+                    formulae: [`"${typeDropdown.join(',')}"`],
+                    showErrorMessage: true,
+                    errorTitle: 'Invalid Selection',
+                    error: 'Please select from the list.'
+                };
+            }
+        });
+
+        // Status dropdown (Col 9)
+        const statusDropdown = ['Implemented', 'In progress', 'Under review', 'Suspended', 'Paused'];
+        worksheet.getColumn(9).eachCell((cell, rowNumber) => {
+            if (rowNumber > 1) {
+                cell.dataValidation = {
+                    type: 'list',
+                    allowBlank: true,
+                    formulae: [`"${statusDropdown.join(',')}"`],
+                    showErrorMessage: true,
+                    errorTitle: 'Invalid Status',
+                    error: 'Please select a valid status.'
+                };
+            }
+        });
+
+        return workbook;
+    }
+
+    async function syncToExcel(silent = true) {
+        if (!silent) showToast('Syncing to Excel...', 'success', true);
+
+        try {
+            const workbook = await generateExcelWorkbook();
+            if (!workbook) return;
+
+            const buffer = await workbook.xlsx.writeBuffer();
+
+            // 1. Sync to Server Master File (Background)
+            try {
+                fetch('api/sync_excel.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/octet-stream' },
+                    body: buffer
+                });
+            } catch (err) {
+                console.error('Server sync failed', err);
+            }
+
+            // 2. Sync to Local File (If connected)
+            if (localFileHandle) {
+                try {
+                    // Check if we still have permission
+                    const options = { mode: 'readwrite' };
+                    if (await localFileHandle.queryPermission(options) === 'granted') {
+                        const writable = await localFileHandle.createWritable();
+                        await writable.write(buffer);
+                        await writable.close();
+                        console.log('Local file direct-synced');
+                        if (!silent) showToast('Excel Synced Locally!', 'success', true);
+                    }
+                } catch (err) {
+                    console.error('Local file sync failed', err);
+                    localFileHandle = null; // Clear if it fails or permission revoked
+                    if (typeof updateSyncUI === 'function') updateSyncUI();
+                }
+            }
+
+            if (!silent && !localFileHandle) {
+                showToast('Server Excel Updated!', 'success', true);
+            }
+        } catch (error) {
+            console.error('Excel Sync Failed:', error);
+        }
+    }
+
+    function updateSyncUI() {
+        const btn = document.getElementById('btn-export-excel');
+        if (!btn) return;
+
+        if (localFileHandle) {
+            btn.innerHTML = '<span>🟢</span> Excel Connected';
+            btn.style.borderColor = '#2ecc71';
+            btn.style.background = 'rgba(46, 204, 113, 0.1)';
+            btn.style.color = '#2ecc71';
+            btn.title = 'Changes are now directly saved to your local file.';
+        } else {
+            const isSupported = !!window.showSaveFilePicker;
+            btn.innerHTML = isSupported ? '<span>📊</span> Connect Local Excel' : '<span>📊</span> Download Excel';
+            btn.style.borderColor = isSupported ? '#64ffda' : '#ffb74d';
+            btn.style.background = isSupported ? 'rgba(100, 255, 218, 0.15)' : 'rgba(255, 183, 77, 0.15)';
+            btn.style.color = isSupported ? '#64ffda' : '#ffb74d';
+            btn.title = isSupported ? 'Click to pick a local file for automatic real-time sync' : 'Direct sync not supported in this browser. Will download new files.';
+        }
+    }
+
     function setupExport() {
         const btnExport = document.getElementById('btn-export-excel');
         if (!btnExport) return;
 
-        btnExport.addEventListener('click', async () => {
-            // 0. Fetch latest records before export to ensure no stale data
-            try {
-                const refreshRes = await fetch(API_URL);
-                const refreshResult = await refreshRes.json();
-                if (refreshResult.success) {
-                    records = refreshResult.data || [];
-                }
-            } catch (err) {
-                console.error('Pre-export refresh failed', err);
-            }
+        // Run UI update initially
+        updateSyncUI();
 
-            if (records.length === 0) {
-                showToast('No data to export', 'error');
+        btnExport.addEventListener('click', async () => {
+            // 1. Check if browser supports File System Access API
+            if (!window.showSaveFilePicker) {
+                console.warn('File System Access API not supported');
+                const masterFileUrl = `Training_Tracker.xlsx?t=${new Date().getTime()}`;
+
+                await syncToExcel(true);
+
+                const link = document.createElement('a');
+                link.href = masterFileUrl;
+                link.download = 'Training_Tracker.xlsx';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                showToast('Automatic sync not supported in this browser. Downloading file...', 'warning');
                 return;
             }
 
-            try {
-                // 1. Create Workbook and Worksheet
-                const workbook = new ExcelJS.Workbook();
-                const worksheet = workbook.addWorksheet('Training Tracker');
-
-                // 2. Define Headers with Icons
-                const headerData = [
-                    { header: '📅 Start Date', key: 'start_date', width: 15 },
-                    { header: '📅 End Date', key: 'end_date', width: 15 },
-                    { header: '🔘 Type', key: 'type', width: 15 },
-                    { header: '🔤 Host Office', key: 'host_office', width: 25 },
-                    { header: '🔤 Activity', key: 'activity', width: 45 },
-                    { header: '👥 Instructor / Participants', key: 'participants', width: 45 },
-                    { header: '🔢 Pax', key: 'pax', width: 10 },
-                    { header: '📍 Venue', key: 'venue', width: 25 },
-                    { header: '🔘 Status', key: 'status', width: 15 },
-                    { header: '📝 Update 1', key: 'up1', width: 20 },
-                    { header: '📝 Update 2', key: 'up2', width: 20 },
-                    { header: '📝 Update 3', key: 'up3', width: 20 },
-                    { header: '🔗 Documentations', key: 'docs', width: 20 },
-                    { header: '📊 Reports', key: 'reports', width: 20 }
-                ];
-
-                worksheet.columns = headerData;
-
-                // 3. Add Data
-                records.forEach(r => {
-                    worksheet.addRow({
-                        start_date: r.start_date || '',
-                        end_date: r.end_date || '',
-                        type: r.type_of_activity || '',
-                        host_office: r.host_office || '',
-                        activity: r.activity || '',
-                        participants: r.instructor_participants || '',
-                        pax: r.no_of_pax || 0,
-                        venue: r.venue || '',
-                        status: r.status || '',
-                        up1: r.status_update_1 || '',
-                        up2: r.status_update_2 || '',
-                        up3: r.status_update_3 || '',
-                        docs: r.documentations || '',
-                        reports: r.reports || ''
+            // 2. If not connected, connect
+            if (!localFileHandle) {
+                try {
+                    showToast('Please select your master Excel file...', 'info');
+                    localFileHandle = await window.showSaveFilePicker({
+                        suggestedName: 'Training_Tracker.xlsx',
+                        types: [{
+                            description: 'Excel Workbook',
+                            accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] }
+                        }]
                     });
-                });
 
-                // 4. Style Header Row (Maroon background, White bold text)
-                const headerRow = worksheet.getRow(1);
-                headerRow.eachCell((cell) => {
-                    cell.fill = {
-                        type: 'pattern',
-                        pattern: 'solid',
-                        fgColor: { argb: 'FF8B0000' } // Maroon
-                    };
-                    cell.font = {
-                        color: { argb: 'FFFFFFFF' }, // White
-                        bold: true,
-                        size: 11
-                    };
-                    cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
-                    cell.border = {
-                        top: { style: 'thin', color: { argb: 'FFA32A2A' } },
-                        left: { style: 'thin', color: { argb: 'FFA32A2A' } },
-                        bottom: { style: 'thin', color: { argb: 'FFA32A2A' } },
-                        right: { style: 'thin', color: { argb: 'FFA32A2A' } }
-                    };
-                });
-                headerRow.height = 30;
-
-                // 5. Style Data Rows (Borders and alignment)
-                worksheet.eachRow((row, rowNumber) => {
-                    if (rowNumber === 1) return; // Skip header
-
-                    row.eachCell((cell, colNumber) => {
-                        cell.border = {
-                            top: { style: 'thin', color: { argb: 'FFD4D4D4' } },
-                            left: { style: 'thin', color: { argb: 'FFD4D4D4' } },
-                            bottom: { style: 'thin', color: { argb: 'FFD4D4D4' } },
-                            right: { style: 'thin', color: { argb: 'FFD4D4D4' } }
-                        };
-                        cell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
-
-                        // Center Pax and Type columns
-                        if (colNumber === 7 || colNumber === 3) {
-                            cell.alignment.horizontal = 'center';
-                        }
-
-                        // Format Instructor / Participants (Col 6) with numbering if multiple
-                        if (colNumber === 6) {
-                            const val = cell.value ? cell.value.toString() : '';
-                            // Split by comma OR any newline sequence
-                            if (val.includes(',') || val.includes('\n') || val.includes('\r')) {
-                                const names = val.split(/[,\n\r]+/).map(n => n.trim()).filter(n => n);
-                                if (names.length > 1) {
-                                    // Change from bullet to sequential numbering
-                                    cell.value = names.map((n, index) => `${index + 1}. ${n}`).join('\n');
-                                    cell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
-                                }
-                            }
-                        }
-
-                        // Style Documentations (Col 13) and Reports (Col 14) as Pills
-                        if (colNumber === 13 || colNumber === 14) {
-                            const val = cell.value ? cell.value.toString() : '';
-                            if (val) {
-                                // Add icons: 📁 for Docs, 📝 for Reports
-                                if (cell.column === 13 && !val.includes('📁')) {
-                                    cell.value = '📁 ' + val;
-                                } else if (cell.column === 14 && !val.includes('📝')) {
-                                    cell.value = '📝 ' + val;
-                                }
-
-                                // Background for "pill" effect
-                                cell.fill = {
-                                    type: 'pattern',
-                                    pattern: 'solid',
-                                    fgColor: { argb: 'FFF0F2F5' }
-                                };
-
-                                // Font styling
-                                cell.font = { color: { argb: 'FF000000' }, size: 10 };
-
-                                if (val.includes('http')) {
-                                    cell.font.color = { argb: 'FF0000FF' };
-                                    cell.font.underline = true;
-                                }
-
-                                cell.alignment = {
-                                    vertical: 'middle',
-                                    horizontal: 'left',
-                                    indent: 1,
-                                    wrapText: false
-                                };
-                            }
-                        }
-                    });
-                });
-
-                // 6. Data Validation (Dropdowns for Type and Status)
-                // Type of Activity dropdown (Col 3)
-                const typeDropdown = ['Invitational', 'Host', 'Participant', 'All'];
-                worksheet.getColumn(3).eachCell((cell, rowNumber) => {
-                    if (rowNumber > 1) {
-                        cell.dataValidation = {
-                            type: 'list',
-                            allowBlank: true,
-                            formulae: [`"${typeDropdown.join(',')}"`],
-                            showErrorMessage: true,
-                            errorTitle: 'Invalid Selection',
-                            error: 'Please select from the list.'
-                        };
+                    updateSyncUI();
+                    showToast('Connection Established! Saving will be automatic.', 'success');
+                    await syncToExcel(false);
+                } catch (err) {
+                    console.log('User cancelled file picker or it failed', err);
+                    if (err.name !== 'AbortError') {
+                        showToast('Failed to connect local file: ' + err.message, 'error');
                     }
-                });
-
-                // Status dropdown (Col 9)
-                const statusDropdown = ['Implemented', 'In progress', 'Under review', 'Suspended', 'Paused'];
-                worksheet.getColumn(9).eachCell((cell, rowNumber) => {
-                    if (rowNumber > 1) {
-                        cell.dataValidation = {
-                            type: 'list',
-                            allowBlank: true,
-                            formulae: [`"${statusDropdown.join(',')}"`],
-                            showErrorMessage: true,
-                            errorTitle: 'Invalid Status',
-                            error: 'Please select a valid status.'
-                        };
-                    }
-                });
-
-                // 7. Generate and Download
-                const buffer = await workbook.xlsx.writeBuffer();
-                const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `Training_Tracker_${new Date().toISOString().split('T')[0]}.xlsx`;
-                a.click();
-                window.URL.revokeObjectURL(url);
-
-                showToast('Professional Excel Exported!', 'success');
-            } catch (error) {
-                console.error('Export Error:', error);
-                showToast('Failed to export Excel', 'error');
+                }
+            } else {
+                // 3. If already connected, manual sync
+                await syncToExcel(false);
             }
         });
     }
@@ -283,7 +391,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (result.success) {
                     showToast('Event added successfully!', 'success');
                     closeModal();
-                    fetchRecords(); // Refresh table
+                    await fetchRecords(); // Refresh local table
+                    syncToExcel(true); // Sync to server Excel
                 } else {
                     showToast('Failed to add event: ' + result.error, 'error');
                 }
@@ -506,6 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     row.classList.add('data-row');
                     row.querySelector('td:first-child').innerHTML = `<button class="row-action-btn" onclick="deleteRow(${result.id})" title="Delete Row">✖</button>`;
                     showToast('Row added', 'success', true);
+                    syncToExcel(true); // Sync to server Excel
                 }
             } catch (err) {
                 showToast('Failed to add row', 'error');
@@ -521,6 +631,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
                 if (result.success) {
                     showToast('Saved', 'success', true);
+
+                    // Sync to Excel with debounce
+                    clearTimeout(syncTimeout);
+                    syncTimeout = setTimeout(() => syncToExcel(true), SYNC_DELAY);
                 }
             } catch (err) {
                 showToast('Update failed', 'error');
@@ -555,6 +669,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const row = document.querySelector(`tr[data-id="${id}"]`);
                 if (row) row.remove();
                 showToast('Row deleted', 'success', true);
+                syncToExcel(true); // Sync to server Excel
             } else {
                 showToast('Failed to delete', 'error');
             }

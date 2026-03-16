@@ -12,6 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputDate = document.getElementById('issue-date');
     const inputVenue = document.getElementById('venue-name');
     const inputBody = document.getElementById('certificate-body');
+    const inputBodyEditor = document.getElementById('certificate-body-editor');
+    const btnBold = document.getElementById('btn-bold');
+    const btnItalic = document.getElementById('btn-italic');
+    const btnHighlight = document.getElementById('btn-highlight');
     const inputIncludeSignature = document.getElementById('include-digital-signature');
     const designRadios = document.querySelectorAll('input[name="design"]');
     // const sig1Name = document.getElementById('sig-1-name'); // Removed as per request
@@ -97,6 +101,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     additionalFields.style.display = 'block';
 
+    // ── Rich Text Editor Logic ──────────────────────────────────────
+    if (inputBodyEditor) {
+        inputBodyEditor.innerHTML = inputBody.value;
+
+        inputBodyEditor.addEventListener('input', () => {
+            inputBody.value = inputBodyEditor.innerHTML;
+            updatePreview();
+            updatePreviewScale();
+        });
+
+        const applyFormatting = (command, value = null) => {
+            document.execCommand(command, false, value);
+            inputBodyEditor.focus();
+            inputBody.value = inputBodyEditor.innerHTML;
+            updatePreview();
+        };
+
+        btnBold.addEventListener('click', () => applyFormatting('bold'));
+        btnItalic.addEventListener('click', () => applyFormatting('italic'));
+        btnHighlight.addEventListener('click', () => applyFormatting('underline'));
+
+        // Prevent toolbar buttons from taking focus
+        [btnBold, btnItalic, btnHighlight].forEach(btn => {
+            btn.addEventListener('mousedown', (e) => e.preventDefault());
+        });
+    }
+
     // ── Pre-fill Logic from Training Tracker ──────────────────────────
     function checkPrefill() {
         const rawData = localStorage.getItem('prefill_certificate');
@@ -111,7 +142,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 2. Populate Body Text
             if (data.activity) {
-                inputBody.value = `In grateful acknowledgement of his/her distinguished and invaluable service rendered as participant in the ${data.activity} held at ${data.venue || 'Provincial Capitol'} and thereby imparting his/her knowledge and contributing immeasurably to the success of the program.`;
+                const bodyText = `In grateful acknowledgement of his/her distinguished and invaluable service rendered as participant in the ${data.activity} held at ${data.venue || 'Provincial Capitol'} and thereby imparting his/her knowledge and contributing immeasurably to the success of the program.`;
+                inputBody.value = bodyText;
+                if (inputBodyEditor) inputBodyEditor.innerHTML = bodyText;
             }
 
             // 3. Populate Recipients
@@ -146,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    [inputDate, inputVenue, inputBody].forEach(el => {
+    [inputDate, inputVenue].forEach(el => {
         if (el) el.addEventListener('input', () => {
             updatePreview();
             updatePreviewScale();

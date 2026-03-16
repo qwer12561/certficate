@@ -12,10 +12,12 @@ function getDB() {
     $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
     if ($conn->connect_error) {
+        // Log locally if needed, but don't leak details to client
+        error_log('Database connection failed: ' . $conn->connect_error);
         http_response_code(500);
         echo json_encode([
             'success' => false,
-            'error'   => 'Database connection failed: ' . $conn->connect_error
+            'error'   => 'Database connection failed. Please contact your administrator.'
         ]);
         exit;
     }

@@ -93,9 +93,49 @@ document.addEventListener('DOMContentLoaded', () => {
     const today = new Date().toISOString().split('T')[0];
     inputDate.value = today;
 
-    inputBody.value = "In grateful acknowledgement of his distinguished and invaluable service rendered as Course / Achievement Title and thereby imparting his knowledge and contributing immeasurably to the success of the the program.";
+    inputBody.value = "In grateful acknowledgement of his distinguished and invaluable service rendered as Course / Achievement Title and thereby imparting his knowledge and contributing immeasurably to the success of the program.";
 
     additionalFields.style.display = 'block';
+
+    // ── Pre-fill Logic from Training Tracker ──────────────────────────
+    function checkPrefill() {
+        const rawData = localStorage.getItem('prefill_certificate');
+        if (!rawData) return;
+
+        try {
+            const data = JSON.parse(rawData);
+
+            // 1. Populate Basic Fields
+            if (data.date) inputDate.value = data.date;
+            if (data.venue) inputVenue.value = data.venue;
+
+            // 2. Populate Body Text
+            if (data.activity) {
+                inputBody.value = `In grateful acknowledgement of his/her distinguished and invaluable service rendered as participant in the ${data.activity} held at ${data.venue || 'Provincial Capitol'} and thereby imparting his/her knowledge and contributing immeasurably to the success of the program.`;
+            }
+
+            // 3. Populate Recipients
+            if (data.participants && Array.isArray(data.participants)) {
+                recipients = [...data.participants];
+                renderRecipientsList();
+            }
+
+            // 4. Clear after use
+            localStorage.removeItem('prefill_certificate');
+            // Small delay to ensure toast system is ready
+            setTimeout(() => {
+                if (window.showToast) {
+                    showToast('✅ Event data pre-filled successfully!');
+                } else {
+                    alert('✅ Event data pre-filled successfully!');
+                }
+            }, 500);
+        } catch (err) {
+            console.error('Failed to parse prefill data', err);
+        }
+    }
+
+    checkPrefill();
 
     // ── Live Preview Listeners ────────────────────────────────────────
     const certTypeRadios = document.querySelectorAll('input[name="cert-type"]');

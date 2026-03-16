@@ -635,17 +635,16 @@ body {
     .certificate-container {
         transform: scale(0.45);
         transform-origin: top center;
-        margin-bottom: -350px;
-        /* Adjust height based on scale */
+        margin-bottom: 2rem;
+        /* Remove negative margin that hides content */
     }
 }
 
 @media (max-width: 480px) {
     .certificate-container {
         transform: scale(0.32);
-        transform-origin: top left;
-        margin-bottom: -450px;
-        /* Adjust height based on scale */
+        transform-origin: top center;
+        margin-bottom: 1rem;
     }
 
     .preview-wrapper {
@@ -1154,6 +1153,15 @@ body {
     font-weight: bold;
     cursor: pointer;
     z-index: 11000;
+    padding: 10px;
+    /* Increase hit area */
+    margin: -10px;
+    /* Offset padding to keep visual position */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
 }
 
 .close-modal:hover {
@@ -1785,9 +1793,10 @@ body {
 /* ── Modern Toast Notifications ───────────────────────────── */
 .toast-container {
     position: fixed;
-    top: 2rem;
-    right: 2rem;
-    z-index: 99999;
+    top: 1rem;
+    right: 1rem;
+    z-index: 110000;
+    /* Ensure it is above modals */
     display: flex;
     flex-direction: column;
     gap: 1rem;

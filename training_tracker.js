@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupModal();
     setupInstructorModal();
     setupExport();
+    setupSearch();
 
     let syncTimeout;
     const SYNC_DELAY = 1000; // 1 second debounce for cell changes
@@ -343,6 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result.success) {
                 records = result.data || [];
                 renderTable();
+                renderSummary();
             } else {
                 showToast('Failed to fetch records: ' + result.error, 'error');
             }
@@ -357,18 +359,48 @@ document.addEventListener('DOMContentLoaded', () => {
     // ----------------------------------------------------
     function setupModal() {
         const modal = document.getElementById('add-event-modal');
+        const modalTitle = document.getElementById('modal-event-title');
+        const btnSave = document.getElementById('btn-save-event');
         const btnOpen = document.getElementById('btn-add-event');
         const btnClose = document.getElementById('btn-close-modal');
         const btnCancel = document.getElementById('btn-cancel-modal');
         const form = document.getElementById('add-event-form');
+        const idInput = document.getElementById('edit-record-id');
 
-        const closeModal = () => modal.classList.remove('active');
-        const openModal = () => {
+        const closeModal = () => {
+            modal.classList.remove('active');
+            form.reset();
+            idInput.value = '';
+        };
+
+        const openAddModal = () => {
+            idInput.value = '';
+            modalTitle.innerText = 'Add New Training Event';
+            btnSave.innerText = 'Save Event';
             form.reset();
             modal.classList.add('active');
         };
 
-        btnOpen.addEventListener('click', openModal);
+        window.openEditModal = (id) => {
+            const record = records.find(r => r.id == id);
+            if (!record) return;
+
+            idInput.value = id;
+            modalTitle.innerText = 'Edit Training Event';
+            btnSave.innerText = 'Update Event';
+
+            // Populate form fields
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                if (input.name && record[input.name] !== undefined) {
+                    input.value = record[input.name];
+                }
+            });
+
+            modal.classList.add('active');
+        };
+
+        btnOpen.addEventListener('click', openAddModal);
         btnClose.addEventListener('click', closeModal);
         btnCancel.addEventListener('click', closeModal);
 
@@ -380,24 +412,27 @@ document.addEventListener('DOMContentLoaded', () => {
             // Convert pax to integer
             payload.no_of_pax = parseInt(payload.no_of_pax) || 0;
 
+            const isEdit = !!payload.id;
+            const method = isEdit ? 'PUT' : 'POST';
+
             try {
                 const response = await fetch(API_URL, {
-                    method: 'POST',
+                    method: method,
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
                 const result = await response.json();
 
                 if (result.success) {
-                    showToast('Event added successfully!', 'success');
+                    showToast(isEdit ? 'Event updated!' : 'Event added!', 'success');
                     closeModal();
                     await fetchRecords(); // Refresh local table
                     syncToExcel(true); // Sync to server Excel
                 } else {
-                    showToast('Failed to add event: ' + result.error, 'error');
+                    showToast('Error: ' + result.error, 'error');
                 }
             } catch (error) {
-                showToast('Network error while adding event.', 'error');
+                showToast('Network error.', 'error');
             }
         });
     }
@@ -415,6 +450,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         tableBody.innerHTML = html;
         attachRowListeners();
+        renderSummary(); // Ensure summary is updated when table renders
+    }
+
+    function renderSummary() {
+        const totalEvents = records.length;
+        const totalPax = records.reduce((sum, r) => sum + (parseInt(r.no_of_pax) || 0), 0);
+        const inProgress = records.filter(r => r.status === 'In progress').length;
+        const implemented = records.filter(r => r.status === 'Implemented').length;
+
+        const elTotalEvents = document.getElementById('stat-total-events');
+        const elTotalPax = document.getElementById('stat-total-pax');
+        const elInProgress = document.getElementById('stat-in-progress');
+        const elImplemented = document.getElementById('stat-implemented');
+
+        if (elTotalEvents) elTotalEvents.innerText = totalEvents;
+        if (elTotalPax) elTotalPax.innerText = totalPax.toLocaleString();
+        if (elInProgress) elInProgress.innerText = inProgress;
+        if (elImplemented) elImplemented.innerText = implemented;
     }
 
     function generateRowHTML(record, isNew) {
@@ -435,7 +488,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return `
             <tr class="${rowClass}" data-id="${id}">
                 <td style="text-align: center;">
-                    ${!isNew ? `<button class="row-action-btn" onclick="deleteRow(${id})" title="Delete Row">✖</button>` : ''}
+                    ${!isNew ? `
+                        <button class="edit-row-btn" onclick="openEditModal('${id}')" title="Edit Row">✏️</button>
+                        <button class="row-action-btn" onclick="deleteRow('${id}')" title="Delete Row">✖</button>
+                    ` : ''}
                 </td>
                 <td><input type="date" name="start_date" value="${safeVal(record.start_date)}"></td>
                 <td><input type="date" name="end_date" value="${safeVal(record.end_date)}"></td>
@@ -452,7 +508,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td><input type="text" name="activity" value="${safeVal(record.activity)}"></td>
                 <td class="instructor-cell">
                     <div class="name-pills-container">
-                        ${(record.instructor_participants || '').split(',').map(name => name.trim()).filter(name => name).map(name => `<span class="name-pill">${name}</span>`).join('')}
+                        ${(record.instructor_participants || '').split(/[,\n]/).map(name => name.trim()).filter(name => name).map(name => `<span class="name-pill">${name}</span>`).join('')}
                     </div>
                     <textarea name="instructor_participants" rows="2">${safeVal(record.instructor_participants)}</textarea>
                     <button class="btn-view-instructors" onclick="openInstructorModal(this)" title="View/Edit Names">👁</button>
@@ -469,11 +525,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         <option value="Paused" ${statusValue === 'Paused' ? 'selected' : ''}>Paused</option>
                     </select>
                 </td>
-                <td><input type="text" name="status_update_1" value="${safeVal(record.status_update_1)}"></td>
-                <td><input type="text" name="status_update_2" value="${safeVal(record.status_update_2)}"></td>
-                <td><input type="text" name="status_update_3" value="${safeVal(record.status_update_3)}"></td>
-                <td>
-                    <div class="cell-link-container ${docsVal ? 'has-content' : ''}">
+                 <td><input type="text" name="status_update_1" value="${safeVal(record.status_update_1)}"></td>
+                 <td><input type="text" name="status_update_2" value="${safeVal(record.status_update_2)}"></td>
+                 <td><input type="text" name="status_update_3" value="${safeVal(record.status_update_3)}"></td>
+                 <td>
+                     <div class="cell-link-container ${docsVal ? 'has-content' : ''}">
                         ${docsVal && isUrl(docsVal)
                 ? `<a href="${docsVal}" target="_blank" class="cell-icon-link" title="Open Link">📁</a>`
                 : `<span class="cell-icon">📁</span>`}
@@ -586,7 +642,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (input.name === 'instructor_participants' || input.name === 'instructor_participants[]') {
             const container = row.querySelector('.name-pills-container');
             if (container) {
-                const names = input.value.split(',').map(n => n.trim()).filter(n => n);
+                const names = input.value.split(/[,\n]/).map(n => n.trim()).filter(n => n);
                 container.innerHTML = names.map(n => `<span class="name-pill">${n}</span>`).join('');
             }
         }
@@ -613,7 +669,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     row.setAttribute('data-id', result.id);
                     row.classList.remove('new-entry-row');
                     row.classList.add('data-row');
-                    row.querySelector('td:first-child').innerHTML = `<button class="row-action-btn" onclick="deleteRow(${result.id})" title="Delete Row">✖</button>`;
+                    row.querySelector('td:first-child').innerHTML = `
+                        <button class="edit-row-btn" onclick="openEditModal('${result.id}')" title="Edit Row">✏️</button>
+                        <button class="row-action-btn" onclick="deleteRow('${result.id}')" title="Delete Row">✖</button>
+                    `;
                     showToast('Row added', 'success', true);
                     syncToExcel(true); // Sync to server Excel
                 }
@@ -631,6 +690,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
                 if (result.success) {
                     showToast('Saved', 'success', true);
+
+                    // Update the local record object with the new value
+                    const record = records.find(r => r.id == id);
+                    if (record) {
+                        record[input.name] = input.value;
+                        if (input.name === 'no_of_pax') record.no_of_pax = parseInt(input.value) || 0;
+                        renderSummary(); // Trigger update
+                    }
 
                     // Sync to Excel with debounce
                     clearTimeout(syncTimeout);
@@ -659,22 +726,42 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.deleteRow = async function (id) {
+        console.log('Attempting to delete row ID:', id);
         if (!confirm('Delete this row completely?')) return;
 
         try {
-            const response = await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
+            const url = `${API_URL}?id=${id}`;
+            console.log('Delete request URL:', url);
+            const response = await fetch(url, { method: 'DELETE' });
+
+            console.log('Delete response status:', response.status);
             const result = await response.json();
+            console.log('Delete result:', result);
 
             if (result.success) {
                 const row = document.querySelector(`tr[data-id="${id}"]`);
-                if (row) row.remove();
+                if (row) {
+                    row.remove();
+                    console.log('Row element removed from DOM');
+                } else {
+                    console.warn('Could not find row element to remove:', id);
+                    // Fallback: refresh table
+                    fetchRecords();
+                }
+
+                // Remove from local records array and update summary
+                records = records.filter(r => r.id != id);
+                renderSummary();
+
                 showToast('Row deleted', 'success', true);
                 syncToExcel(true); // Sync to server Excel
             } else {
-                showToast('Failed to delete', 'error');
+                console.error('Delete failed:', result.error);
+                showToast('Failed to delete: ' + (result.error || 'Unknown error'), 'error');
             }
         } catch (error) {
-            showToast('Delete error', 'error');
+            console.error('Delete error exception:', error);
+            showToast('Delete error: ' + error.message, 'error');
         }
     };
 
@@ -740,5 +827,100 @@ document.addEventListener('DOMContentLoaded', () => {
             modal.classList.add('active');
             setTimeout(() => textarea.focus(), 100);
         };
+    }
+
+    // ----------------------------------------------------
+    // Bulk Certificate Generation (Redirect to Create Page)
+    // ----------------------------------------------------
+    // Helper Functions
+
+    function generateCertId(type, dateStr) {
+        const d = new Date(dateStr || new Date());
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        const random = Math.floor(10000 + Math.random() * 90000);
+        return `${day}${month}${year}-${random}`;
+    }
+
+    // ----------------------------------------------------
+    // Search Functionality
+    // ----------------------------------------------------
+    function setupSearch() {
+        const headerContainer = document.querySelector('.header-title-container');
+        if (!headerContainer) return;
+
+        // Create search input
+        const searchWrapper = document.createElement('div');
+        searchWrapper.style.cssText = `
+            position: relative;
+            margin-left: 20px;
+            display: flex;
+            align-items: center;
+        `;
+
+        searchWrapper.innerHTML = `
+            <span style="position: absolute; left: 12px; color: #8892b0; font-size: 14px;">🔍</span>
+            <input type="text" id="table-search" placeholder="Search activities, offices, instructors..." style="
+                background: rgba(17, 34, 64, 0.5);
+                border: 1px solid var(--glass-border);
+                color: #fff;
+                padding: 10px 15px 10px 35px;
+                border-radius: 20px;
+                outline: none;
+                width: 250px;
+                font-size: 13px;
+                transition: all 0.3s;
+            ">
+        `;
+
+        // Insert before the saving-text
+        const savingText = headerContainer.querySelector('.saving-text');
+        headerContainer.insertBefore(searchWrapper, savingText);
+
+        const searchInput = searchWrapper.querySelector('#table-search');
+        const statusFilter = document.getElementById('filter-status');
+        const typeFilter = document.getElementById('filter-type');
+
+        const applyFilters = () => {
+            const term = searchInput.value.toLowerCase();
+            const status = statusFilter ? statusFilter.value : '';
+            const type = typeFilter ? typeFilter.value : '';
+            const rows = tableBody.querySelectorAll('tr.data-row');
+
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+
+                // Get values from specific selective inputs for accurate filtering
+                const rowStatus = row.querySelector('select[name="status"]')?.value || '';
+                const rowType = row.querySelector('select[name="type_of_activity"]')?.value || '';
+
+                const matchesSearch = text.includes(term);
+                const matchesStatus = !status || rowStatus === status;
+                const matchesType = !type || rowType === type;
+
+                if (matchesSearch && matchesStatus && matchesType) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        };
+
+        searchInput.addEventListener('focus', () => {
+            searchInput.style.borderColor = 'var(--accent-color)';
+            searchInput.style.background = 'rgba(17, 34, 64, 0.8)';
+            searchInput.style.width = '300px';
+        });
+
+        searchInput.addEventListener('blur', () => {
+            searchInput.style.borderColor = 'var(--glass-border)';
+            searchInput.style.background = 'rgba(17, 34, 64, 0.5)';
+            searchInput.style.width = '250px';
+        });
+
+        searchInput.addEventListener('input', applyFilters);
+        if (statusFilter) statusFilter.addEventListener('change', applyFilters);
+        if (typeFilter) typeFilter.addEventListener('change', applyFilters);
     }
 });

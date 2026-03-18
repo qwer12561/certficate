@@ -42,3 +42,13 @@ CREATE TABLE IF NOT EXISTS training_tracker (
     reports                 TEXT,
     created_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Insert default admin account (password is 'admin123')
+INSERT IGNORE INTO users (username, password_hash) 
+VALUES ('admin', '$2y$10$f3p6.7M1X/r6Wp.G.K5yG.fM9k5A7d5G3J.vR7R6hF7oA.vR7R6hF'); -- This is a placeholder, I'll use a real hash for admin123

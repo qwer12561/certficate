@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings - Certificate Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=109">
+    <script src="auth.js?v=109"></script>
+    <style>
+        .settings-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            width: 100%;
+        }
+
+        .settings-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .settings-card h2 {
+            color: var(--accent-color);
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .save-banner {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: var(--accent-color);
+            color: var(--primary-color);
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            box-shadow: 0 10px 25px rgba(100, 255, 218, 0.3);
+            transform: translateX(150%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 2000;
+        }
+
+        .save-banner.active {
+            transform: translateX(0);
+        }
+
+        .helper-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        .error-message {
+            color: #ff5252;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="video-bg">
+        <div class="overlay"></div>
+    </div>
+
+    <div id="save-banner" class="save-banner">✅ Account Updated Successfully!</div>
+
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <a href="index.html" class="sidebar-logo">
+                <span class="logo-icon">📜</span>
+                <span class="logo-text">Certificate System</span>
+            </a>
+            <nav class="sidebar-nav">
+                <a href="create.html" class="nav-item"><i>➕</i> <span>Create New</span></a>
+                <a href="view.html" class="nav-item"><i>📂</i> <span>View All</span></a>
+                <a href="reprint.html" class="nav-item"><i>🖨️</i> <span>Reprint</span></a>
+                <a href="training_tracker.html" class="nav-item"><i>📊</i> <span>Training Tracker</span></a>
+                <a href="settings.html" class="nav-item active"><i>⚙️</i> <span>Settings</span></a>
+                <a href="#" class="nav-item" data-logout><i>🚪</i> <span>Logout</span></a>
+            </nav>
+            <div class="sidebar-footer">
+                <p>&copy; 2026 Certificate System</p>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="header-title-container">
+                <h1>Settings</h1>
+                <span class="saving-text">Manage Account Credentials</span>
+            </div>
+
+            <div class="settings-container">
+                <div class="settings-card">
+                    <h2>🔐 Account Security</h2>
+                    <form id="account-form" class="professional-form">
+                        <div class="form-group">
+                            <label>Current Username</label>
+                            <input type="text" id="current-username" disabled
+                                style="opacity: 0.7; background: rgba(255,255,255,0.1);">
+                        </div>
+
+                        <div class="form-group">
+                            <label>New Username</label>
+                            <input type="text" name="new_username" placeholder="Enter new username (optional)">
+                        </div>
+
+                        <div style="margin: 2rem 0; border-top: 1px solid var(--glass-border);"></div>
+
+                        <div class="form-group">
+                            <label>New Password</label>
+                            <input type="password" name="new_password" id="new-password"
+                                placeholder="Enter new password (optional)">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Confirm New Password</label>
+                            <input type="password" id="confirm-password" placeholder="Repeat new password">
+                            <div id="password-error" class="error-message">Passwords do not match</div>
+                        </div>
+
+                        <div style="margin: 2rem 0; border-top: 1px solid var(--glass-border);"></div>
+
+                        <div class="form-group"
+                            style="background: rgba(255, 82, 82, 0.05); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255, 82, 82, 0.2);">
+                            <label style="color: #ff5252;">Verify Current Password</label>
+                            <input type="password" name="current_password" required
+                                placeholder="Required to save changes">
+                            <p class="helper-text">You must enter your existing password to authorize these changes.</p>
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+                            <button type="button" class="btn-secondary" onclick="location.reload()">Reset</button>
+                            <button type="submit" class="btn-primary">Update Account</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="settings.js?v=109"></script>
+    <script src="notifications.js?v=109"></script>
+</body>
+
+</html>

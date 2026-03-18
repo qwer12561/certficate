@@ -78,8 +78,12 @@
             width: 10%;
         }
 
+        .col-instructors {
+            width: 8%;
+        }
+
         .col-participants {
-            width: 10%;
+            width: 12%;
         }
 
         .col-pax {
@@ -812,7 +816,8 @@
                             <th class="col-type">Type of Activity</th>
                             <th class="col-office">Host Office</th>
                             <th class="col-activity">Activity</th>
-                            <th class="col-participants">Instructor / Participants</th>
+                            <th class="col-instructors">Instructors</th>
+                            <th class="col-participants">Participants</th>
                             <th class="col-pax">No. of Pax</th>
                             <th class="col-venue">Venue</th>
                             <th class="col-status">Status</th>
@@ -877,8 +882,12 @@
                         <input type="text" name="host_office" placeholder="e.g. UM Bansalan">
                     </div>
                     <div class="form-full">
-                        <label>Instructor / Participants</label>
-                        <textarea name="instructor_participants" rows="3" placeholder="List participants..."></textarea>
+                        <label>Instructors</label>
+                        <textarea name="instructors" rows="2" placeholder="List instructors..."></textarea>
+                    </div>
+                    <div class="form-full">
+                        <label>Participants</label>
+                        <textarea name="participants" rows="3" placeholder="List participants..."></textarea>
                     </div>
                     <div>
                         <label>No. of Pax</label>

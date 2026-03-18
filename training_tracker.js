@@ -55,7 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
             { header: '🔘 Type', key: 'type', width: 15 },
             { header: '🔤 Host Office', key: 'host_office', width: 25 },
             { header: '🔤 Activity', key: 'activity', width: 45 },
-            { header: '👥 Instructor / Participants', key: 'participants', width: 45 },
+            { header: '👨‍🏫 Instructors', key: 'instructors', width: 30 },
+            { header: '👥 Participants', key: 'participants', width: 45 },
             { header: '🔢 Pax', key: 'pax', width: 10 },
             { header: '📍 Venue', key: 'venue', width: 25 },
             { header: '🔘 Status', key: 'status', width: 15 },
@@ -76,7 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 type: r.type_of_activity || '',
                 host_office: r.host_office || '',
                 activity: r.activity || '',
-                participants: r.instructor_participants || '',
+                instructors: r.instructors || '',
+                participants: r.participants || '',
                 pax: r.no_of_pax || 0,
                 venue: r.venue || '',
                 status: r.status || '',
@@ -125,12 +127,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 cell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
 
                 // Center Pax and Type columns
-                if (colNumber === 7 || colNumber === 3) {
+                if (colNumber === 8 || colNumber === 3) {
                     cell.alignment.horizontal = 'center';
                 }
 
-                // Format Instructor / Participants (Col 6) with numbering if multiple
-                if (colNumber === 6) {
+                // Format Instructors (Col 6) and Participants (Col 7) with numbering if multiple
+                if (colNumber === 6 || colNumber === 7) {
                     const val = cell.value ? cell.value.toString() : '';
                     // Split by comma OR any newline sequence
                     if (val.includes(',') || val.includes('\n') || val.includes('\r')) {
@@ -143,14 +145,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
-                // Style Documentations (Col 13) and Reports (Col 14) as Pills
-                if (colNumber === 13 || colNumber === 14) {
+                // Style Documentations (Col 14) and Reports (Col 15) as Pills
+                if (colNumber === 14 || colNumber === 15) {
                     const val = cell.value ? cell.value.toString() : '';
                     if (val) {
                         // Add icons: 📁 for Docs, 📝 for Reports
-                        if (cell.column === 13 && !val.includes('📁')) {
+                        if (cell.column === 14 && !val.includes('📁')) {
                             cell.value = '📁 ' + val;
-                        } else if (cell.column === 14 && !val.includes('📝')) {
+                        } else if (cell.column === 15 && !val.includes('📝')) {
                             cell.value = '📝 ' + val;
                         }
 
@@ -508,9 +510,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td><input type="text" name="activity" value="${safeVal(record.activity)}"></td>
                 <td class="instructor-cell">
                     <div class="name-pills-container">
-                        ${(record.instructor_participants || '').split(/[,\n]/).map(name => name.trim()).filter(name => name).map(name => `<span class="name-pill">${name}</span>`).join('')}
+                        ${(record.instructors || '').split(/[,\n]/).map(name => name.trim()).filter(name => name).map(name => `<span class="name-pill">${name}</span>`).join('')}
                     </div>
-                    <textarea name="instructor_participants" rows="2">${safeVal(record.instructor_participants)}</textarea>
+                    <textarea name="instructors" rows="2">${safeVal(record.instructors)}</textarea>
+                    <button class="btn-view-instructors" onclick="openInstructorModal(this)" title="View/Edit Names">👁</button>
+                </td>
+                <td class="instructor-cell">
+                    <div class="name-pills-container">
+                        ${(record.participants || '').split(/[,\n]/).map(name => name.trim()).filter(name => name).map(name => `<span class="name-pill">${name}</span>`).join('')}
+                    </div>
+                    <textarea name="participants" rows="2">${safeVal(record.participants)}</textarea>
                     <button class="btn-view-instructors" onclick="openInstructorModal(this)" title="View/Edit Names">👁</button>
                 </td>
                 <td><input type="number" name="no_of_pax" value="${record.no_of_pax || ''}" style="text-align: right;"></td>
@@ -639,9 +648,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Handle name pills for Instructor / Participants
-        if (input.name === 'instructor_participants' || input.name === 'instructor_participants[]') {
-            const container = row.querySelector('.name-pills-container');
-            if (container) {
+        if (input.name === 'instructors' || input.name === 'participants') {
+            const container = input.previousElementSibling; // The name-pills-container
+            if (container && container.classList.contains('name-pills-container')) {
                 const names = input.value.split(/[,\n]/).map(n => n.trim()).filter(n => n);
                 container.innerHTML = names.map(n => `<span class="name-pill">${n}</span>`).join('');
             }
@@ -822,7 +831,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Expose openInstructorModal to window
         window.openInstructorModal = (btn) => {
             currentInstructorRow = btn.closest('tr');
-            currentInstructorInput = currentInstructorRow.querySelector('textarea[name="instructor_participants"]');
+            currentInstructorInput = btn.previousElementSibling; // The textarea
             textarea.value = currentInstructorInput.value;
             modal.classList.add('active');
             setTimeout(() => textarea.focus(), 100);

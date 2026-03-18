@@ -45,16 +45,17 @@ switch ($method) {
         }
 
         $stmt = $conn->prepare("INSERT INTO training_tracker 
-            (start_date, end_date, type_of_activity, host_office, activity, instructor_participants, no_of_pax, venue, status, status_update_1, status_update_2, status_update_3, documentations, reports) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            (start_date, end_date, type_of_activity, host_office, activity, instructors, participants, no_of_pax, venue, status, status_update_1, status_update_2, status_update_3, documentations, reports) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             
-        $stmt->bind_param("ssssssisssssss", 
+        $stmt->bind_param("sssssssisssssss", 
             $input['start_date'],
             $input['end_date'],
             $input['type_of_activity'],
             $input['host_office'],
             $input['activity'],
-            $input['instructor_participants'],
+            $input['instructors'],
+            $input['participants'],
             $input['no_of_pax'],
             $input['venue'],
             $input['status'],
@@ -90,7 +91,8 @@ switch ($method) {
             type_of_activity = ?, 
             host_office = ?, 
             activity = ?, 
-            instructor_participants = ?, 
+            instructors = ?, 
+            participants = ?, 
             no_of_pax = ?, 
             venue = ?, 
             status = ?, 
@@ -101,13 +103,14 @@ switch ($method) {
             reports = ? 
             WHERE id = ?");
             
-        $stmt->bind_param("ssssssisssssssi", 
+        $stmt->bind_param("sssssssisssssssi", 
             $input['start_date'],
             $input['end_date'],
             $input['type_of_activity'],
             $input['host_office'],
             $input['activity'],
-            $input['instructor_participants'],
+            $input['instructors'],
+            $input['participants'],
             $input['no_of_pax'],
             $input['venue'],
             $input['status'],

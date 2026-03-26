@@ -24,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/audit_utils.php';
 $db = getDB();
 
 $method = $_SERVER['REQUEST_METHOD'];
@@ -113,6 +114,7 @@ if ($method === 'POST') {
 
         if ($db->query($sql)) {
             $saved++;
+            logAction($db, "Created/Updated Certificate", $id, ["recipient" => $recipient, "type" => $type]);
         } else {
             error_log('Certificate insert error: ' . $db->error);
         }
@@ -135,6 +137,7 @@ if ($method === 'DELETE') {
     $sql = "DELETE FROM certificates WHERE id = '$id'";
 
     if ($db->query($sql)) {
+        logAction($db, "Deleted Certificate", $id);
         echo json_encode(['success' => true, 'deleted' => $db->affected_rows]);
     } else {
         http_response_code(500);

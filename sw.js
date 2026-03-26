@@ -1,15 +1,21 @@
-const CACHE_NAME = "cert-system-cache-v6";
+const CACHE_NAME = "cert-system-cache-v8";
 const urlsToCache = [
     "./",
     "./index.html",
     "./create.html",
     "./view.html",
     "./reprint.html",
+    "./training_tracker.html",
+    "./audit_logs.html",
+    "./settings.html",
     "./style.css",
+    "./auth.js",
     "./main.js",
     "./create.js",
     "./view.js",
     "./reprint.js",
+    "./audit_logs.js",
+    "./settings.js",
     "./notifications.js"
 ];
 

@@ -6,6 +6,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     exit(json_encode(['success' => false, 'error' => 'Unauthorized']));
 }
 require_once 'db.php';
+require_once 'audit_utils.php';
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -72,7 +73,9 @@ switch ($method) {
         );
 
         if ($stmt->execute()) {
-            echo json_encode(['success' => true, 'id' => $conn->insert_id]);
+            $newId = $conn->insert_id;
+            logAction($conn, "Created Training Record", $newId, ["activity" => $input['activity']]);
+            echo json_encode(['success' => true, 'id' => $newId]);
         } else {
             http_response_code(500);
             echo json_encode(['success' => false, 'error' => 'Failed to create record: ' . $stmt->error]);
@@ -128,6 +131,7 @@ switch ($method) {
         );
 
         if ($stmt->execute()) {
+            logAction($conn, "Updated Training Record", $input['id'], ["activity" => $input['activity'] ?? 'Unknown']);
             echo json_encode(['success' => true]);
         } else {
             http_response_code(500);
@@ -150,6 +154,7 @@ switch ($method) {
         $stmt->bind_param("i", $id);
         
         if ($stmt->execute()) {
+            logAction($conn, "Deleted Training Record", $id);
             echo json_encode(['success' => true]);
         } else {
             http_response_code(500);

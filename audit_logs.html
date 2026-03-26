@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0a192f">
+    <title>Audit Logs - Certificate Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=110">
+    <script src="auth.js?v=110"></script>
+    <style>
+        .audit-table-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            overflow-x: auto;
+        }
+
+        .audit-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        .audit-table th,
+        .audit-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .audit-table th {
+            color: var(--accent-color);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .audit-table tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .action-pill {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .action-create {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+
+        .action-update {
+            background: rgba(52, 152, 219, 0.2);
+            color: #3498db;
+        }
+
+        .action-delete {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+
+        .action-login {
+            background: rgba(155, 89, 182, 0.2);
+            color: #9b59b6;
+        }
+
+        .action-settings {
+            background: rgba(243, 156, 18, 0.2);
+            color: #f39c12;
+        }
+
+        .action-other {
+            background: rgba(149, 165, 166, 0.2);
+            color: #bdc3c7;
+        }
+
+        .details-json {
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #8892b0;
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: help;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="video-bg">
+        <div class="overlay"></div>
+    </div>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <a href="index.html" class="sidebar-logo">
+                <span class="logo-icon">📜</span>
+                <span class="logo-text">Certificate System</span>
+            </a>
+            <nav class="sidebar-nav">
+                <a href="create.html" class="nav-item">
+                    <i>➕</i> <span>Create New</span>
+                </a>
+                <a href="view.html" class="nav-item">
+                    <i>📂</i> <span>View All</span>
+                </a>
+                <a href="reprint.html" class="nav-item">
+                    <i>🖨️</i> <span>Reprint</span>
+                </a>
+                <a href="training_tracker.html" class="nav-item">
+                    <i>📊</i> <span>Training Tracker</span>
+                </a>
+                <a href="audit_logs.html" class="nav-item active">
+                    <i>📜</i> <span>Audit Logs</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <i>⚙️</i> <span>Settings</span>
+                </a>
+                <a href="#" class="nav-item" data-logout>
+                    <i>🚪</i> <span>Logout</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <p>&copy; 2026 Certificate System</p>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="header" style="text-align: left; margin-bottom: 2rem;">
+                <h1 class="title" style="color: #fff; border-bottom: 2px solid #ff5252; padding-bottom: 0.5rem;">Audit
+                    Logs</h1>
+                <p class="subtitle" style="color: #8892b0;">History of all system actions and modifications</p>
+            </header>
+
+            <div class="audit-table-container">
+                <table class="audit-table" id="audit-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Affected ID</th>
+                            <th>Details</th>
+                            <th>IP Address</th>
+                        </tr>
+                    </thead>
+                    <tbody id="audit-logs-body">
+                        <!-- Content will be injected by audit_logs.js -->
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 2rem;">Loading logs...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script src="notifications.js?v=1"></script>
+    <script src="audit_logs.js?v=1"></script>
+</body>
+
+</html>

@@ -3,6 +3,7 @@ session_start();
 header('Content-Type: application/json');
 
 require_once 'db.php';
+require_once 'audit_utils.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -31,6 +32,8 @@ if ($user = $result->fetch_assoc()) {
         $_SESSION['username'] = $username;
         $_SESSION['logged_in'] = true;
         
+        logAction($conn, "User Login", $user['id'], ["username" => $username]);
+
         echo json_encode([
             'success' => true,
             'message' => 'Login successful',
@@ -43,5 +46,6 @@ if ($user = $result->fetch_assoc()) {
     }
 }
 
+logAction($conn, "Failed Login Attempt", null, ["attempted_username" => $username]);
 echo json_encode(['success' => false, 'error' => 'Invalid username or password']);
 ?>

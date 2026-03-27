@@ -5,8 +5,9 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     http_response_code(401);
     exit(json_encode(['success' => false, 'error' => 'Unauthorized']));
 }
+$role = $_SESSION['role'] ?? 'viewer';
 require_once 'db.php';
-require_once 'audit_utils.php';
+require_once 'db.php';
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -42,6 +43,10 @@ switch ($method) {
         break;
 
     case 'POST':
+        if ($role === 'viewer') {
+            http_response_code(403);
+            exit(json_encode(['success' => false, 'error' => 'Forbidden: Editors or Admins only']));
+        }
         // Create matching a new record
         $input = json_decode(file_get_contents('php://input'), true);
         if (!$input) {
@@ -74,7 +79,6 @@ switch ($method) {
 
         if ($stmt->execute()) {
             $newId = $conn->insert_id;
-            logAction($conn, "Created Training Record", $newId, ["activity" => $input['activity']]);
             echo json_encode(['success' => true, 'id' => $newId]);
         } else {
             http_response_code(500);
@@ -85,6 +89,10 @@ switch ($method) {
         break;
 
     case 'PUT':
+        if ($role === 'viewer') {
+            http_response_code(403);
+            exit(json_encode(['success' => false, 'error' => 'Forbidden: Editors or Admins only']));
+        }
         // Update an existing record
         $input = json_decode(file_get_contents('php://input'), true);
         if (!$input || !isset($input['id'])) {
@@ -131,7 +139,6 @@ switch ($method) {
         );
 
         if ($stmt->execute()) {
-            logAction($conn, "Updated Training Record", $input['id'], ["activity" => $input['activity'] ?? 'Unknown']);
             echo json_encode(['success' => true]);
         } else {
             http_response_code(500);
@@ -142,6 +149,10 @@ switch ($method) {
         break;
 
     case 'DELETE':
+        if ($role !== 'admin') {
+            http_response_code(403);
+            exit(json_encode(['success' => false, 'error' => 'Forbidden: Admins only']));
+        }
         // Delete a record
         if (!isset($_GET['id'])) {
             http_response_code(400);
@@ -154,7 +165,6 @@ switch ($method) {
         $stmt->bind_param("i", $id);
         
         if ($stmt->execute()) {
-            logAction($conn, "Deleted Training Record", $id);
             echo json_encode(['success' => true]);
         } else {
             http_response_code(500);

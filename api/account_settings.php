@@ -2,7 +2,7 @@
 session_start();
 header('Content-Type: application/json');
 require_once 'db.php';
-require_once 'audit_utils.php';
+require_once 'db.php';
 
 // Authentication Check
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
@@ -66,7 +66,6 @@ elseif ($method === 'POST') {
         $stmt->bind_param("si", $new_username, $user_id);
         if ($stmt->execute()) {
             $_SESSION['username'] = $new_username; // Update session
-            logAction($db, "Username Changed", $user_id, ["new_username" => $new_username]);
         }
     }
 
@@ -76,7 +75,6 @@ elseif ($method === 'POST') {
         $stmt = $db->prepare("UPDATE users SET password_hash = ? WHERE id = ?");
         $stmt->bind_param("si", $new_hash, $user_id);
         if ($stmt->execute()) {
-            logAction($db, "Password Changed", $user_id);
         }
     }
 

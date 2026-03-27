@@ -90,13 +90,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="btn-icon" title="Reprint/Print" onclick="reprintCertificate('${cert.id}')">
                         <i class="fa fa-print"></i>
                     </button>
-                    <button class="btn-icon delete" title="Delete" onclick="deleteCertificate('${cert.id}')">
+                    <button class="btn-icon delete" title="Delete" onclick="deleteCertificate('${cert.id}')" data-role-min="admin">
                         <i class="fa fa-trash"></i>
                     </button>
                 </div>
             `;
             listContainer.appendChild(card);
         });
+
+        // Apply RBAC UI restrictions
+        if (window.currentUser && window.applyRoleRestrictions) {
+            window.applyRoleRestrictions(window.currentUser.role);
+        } else {
+            document.addEventListener('auth:ready', (e) => {
+                window.applyRoleRestrictions(e.detail.role);
+            }, { once: true });
+        }
     }
 
     // Modal Actions

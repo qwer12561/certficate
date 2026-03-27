@@ -3,7 +3,6 @@ session_start();
 header('Content-Type: application/json');
 
 require_once 'db.php';
-require_once 'audit_utils.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -21,31 +20,30 @@ if (empty($username) || empty($password)) {
 }
 
 $conn = getDB();
-$stmt = $conn->prepare("SELECT id, password_hash FROM users WHERE username = ?");
+$stmt = $conn->prepare("SELECT id, username, password_hash, role FROM users WHERE username = ?");
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
 
 if ($user = $result->fetch_assoc()) {
     if (password_verify($password, $user['password_hash'])) {
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['username'] = $username;
         $_SESSION['logged_in'] = true;
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['username'] = $user['username'];
+        $_SESSION['role'] = $user['role'];
         
-        logAction($conn, "User Login", $user['id'], ["username" => $username]);
-
         echo json_encode([
             'success' => true,
-            'message' => 'Login successful',
             'user' => [
                 'id' => $user['id'],
-                'username' => $username
+                'username' => $user['username'],
+                'role' => $user['role']
             ]
         ]);
         exit;
     }
 }
 
-logAction($conn, "Failed Login Attempt", null, ["attempted_username" => $username]);
+http_response_code(401);
 echo json_encode(['success' => false, 'error' => 'Invalid username or password']);
 ?>

@@ -716,19 +716,19 @@
                 <span class="logo-text">Certificate System</span>
             </a>
             <nav class="sidebar-nav">
-                <a href="create.html" class="nav-item">
+                <a href="create.html" class="nav-item" data-role-min="editor">
                     <i>➕</i> <span>Create New</span>
                 </a>
                 <a href="view.html" class="nav-item">
                     <i>📂</i> <span>View All</span>
                 </a>
-                <a href="reprint.html" class="nav-item">
+                <a href="reprint.html" class="nav-item" data-role-min="editor">
                     <i>🖨️</i> <span>Reprint</span>
                 </a>
                 <a href="training_tracker.html" class="nav-item active">
                     <i>📊</i> <span>Training Tracker</span>
                 </a>
-                <a href="audit_logs.html" class="nav-item">
+                <a href="audit_logs.html" class="nav-item" data-role-min="admin">
                     <i>📜</i> <span>Audit Logs</span>
                 </a>
                 <a href="settings.html" class="nav-item">
@@ -747,8 +747,8 @@
             <div class="header-title-container">
                 <div style="display: flex; align-items: center; gap: 20px;">
                     <h1>Training Tracker</h1>
-                    <button class="btn-add-event" id="btn-add-event">
-                        <span>+</span> Add Event
+                    <button class="btn-primary" id="btn-add-event" data-role-min="editor">
+                        <span>➕</span> Add New Event
                     </button>
                     <button class="btn-export-excel" id="btn-export-excel">
                         <span>📊</span> Export to Excel

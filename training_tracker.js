@@ -453,6 +453,15 @@ document.addEventListener('DOMContentLoaded', () => {
         tableBody.innerHTML = html;
         attachRowListeners();
         renderSummary(); // Ensure summary is updated when table renders
+
+        // Apply RBAC UI restrictions to dynamically added buttons/inputs
+        if (window.currentUser && window.applyRoleRestrictions) {
+            window.applyRoleRestrictions(window.currentUser.role);
+        } else {
+            document.addEventListener('auth:ready', (e) => {
+                window.applyRoleRestrictions(e.detail.role);
+            }, { once: true });
+        }
     }
 
     function renderSummary() {
@@ -491,8 +500,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <tr class="${rowClass}" data-id="${id}">
                 <td style="text-align: center;">
                     ${!isNew ? `
-                        <button class="edit-row-btn" onclick="openEditModal('${id}')" title="Edit Row">✏️</button>
-                        <button class="row-action-btn" onclick="deleteRow('${id}')" title="Delete Row">✖</button>
+                        <button class="edit-row-btn" onclick="openEditModal('${id}')" title="Edit Row" data-role-min="editor">✏️</button>
+                        <button class="row-action-btn" onclick="deleteRow('${id}')" title="Delete Row" data-role-min="admin">✖</button>
                     ` : ''}
                 </td>
                 <td><input type="date" name="start_date" value="${safeVal(record.start_date)}"></td>
@@ -679,9 +688,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     row.classList.remove('new-entry-row');
                     row.classList.add('data-row');
                     row.querySelector('td:first-child').innerHTML = `
-                        <button class="edit-row-btn" onclick="openEditModal('${result.id}')" title="Edit Row">✏️</button>
-                        <button class="row-action-btn" onclick="deleteRow('${result.id}')" title="Delete Row">✖</button>
+                        <button class="edit-row-btn" onclick="openEditModal('${result.id}')" title="Edit Row" data-role-min="editor">✏️</button>
+                        <button class="row-action-btn" onclick="deleteRow('${result.id}')" title="Delete Row" data-role-min="admin">✖</button>
                     `;
+                    // Re-apply restrictions for the new row
+                    if (window.currentUser && window.applyRoleRestrictions) {
+                        window.applyRoleRestrictions(window.currentUser.role);
+                    }
                     showToast('Row added', 'success', true);
                     syncToExcel(true); // Sync to server Excel
                 }

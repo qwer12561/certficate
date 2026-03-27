@@ -4,9 +4,13 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     http_response_code(401);
     exit(json_encode(['success' => false, 'error' => 'Unauthorized']));
 }
+$role = $_SESSION['role'] ?? 'viewer';
+if (!in_array($role, ['admin', 'editor'])) {
+    http_response_code(403);
+    exit(json_encode(['success' => false, 'error' => 'Forbidden: Editors or Admins only']));
+}
 // api/sync_excel.php
 require_once 'db.php';
-require_once 'audit_utils.php';
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -54,9 +58,6 @@ if (!is_writable($directory)) {
 
 // Save the file
 if (file_put_contents($filename, $data)) {
-    $conn = getDB();
-    logAction($conn, "Excel Master File Updated");
-    $conn->close();
     echo json_encode(['success' => true, 'message' => 'Excel file updated successfully', 'filename' => 'Training_Tracker.xlsx']);
 } else {
     http_response_code(500);

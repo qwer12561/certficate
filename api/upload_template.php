@@ -4,9 +4,14 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     http_response_code(401);
     exit(json_encode(['success' => false, 'error' => 'Unauthorized']));
 }
+$role = $_SESSION['role'] ?? 'viewer';
+if (!in_array($role, ['admin', 'editor'])) {
+    http_response_code(403);
+    exit(json_encode(['success' => false, 'error' => 'Forbidden: Editors or Admins only']));
+}
 
 require_once 'db.php';
-require_once 'audit_utils.php';
+require_once 'db.php';
 
 header('Content-Type: application/json');
 
@@ -39,10 +44,6 @@ if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg
 }
 
 if (move_uploaded_file($file["tmp_name"], $target_file)) {
-    $conn = getDB();
-    logAction($conn, "Uploaded Template", null, ["fileName" => $fileName]);
-    $conn->close();
-
     echo json_encode([
         "success" => true, 
         "file" => $fileName, 

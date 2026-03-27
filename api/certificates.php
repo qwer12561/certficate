@@ -4,6 +4,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     http_response_code(401);
     exit(json_encode(['success' => false, 'error' => 'Unauthorized']));
 }
+$role = $_SESSION['role'] ?? 'viewer';
 // ─────────────────────────────────────────────
 //  Certificates API
 //  GET    /api/certificates.php           → all certificates
@@ -68,6 +69,10 @@ if ($method === 'GET') {
 
 // ── POST ─────────────────────────────────────────────────────────────
 if ($method === 'POST') {
+    if ($role === 'viewer') {
+        http_response_code(403);
+        exit(json_encode(['success' => false, 'error' => 'Forbidden: Editors or Admins only']));
+    }
     $body = json_decode(file_get_contents('php://input'), true);
 
     if (!$body) {
@@ -114,7 +119,9 @@ if ($method === 'POST') {
 
         if ($db->query($sql)) {
             $saved++;
-            logAction($db, "Created/Updated Certificate", $id, ["recipient" => $recipient, "type" => $type]);
+            if ($db->affected_rows === 1) {
+                logAction($db, "Created Certificate", $id, ["recipient" => $recipient, "type" => $type]);
+            }
         } else {
             error_log('Certificate insert error: ' . $db->error);
         }
@@ -126,6 +133,13 @@ if ($method === 'POST') {
 
 // ── DELETE ─────────────────────────────────────────────────────────────
 if ($method === 'DELETE') {
+    $debug_info = "Time: " . date("Y-m-d H:i:s") . " | Method: DELETE | Role session: " . $role . "\n";
+    file_put_contents(__DIR__ . "/debug_log.txt", $debug_info, FILE_APPEND);
+    if ($role !== 'admin') {
+        file_put_contents(__DIR__ . "/debug_log.txt", "Access Denied for: " . $role . "\n", FILE_APPEND);
+        http_response_code(403);
+        exit(json_encode(['success' => false, 'error' => 'Forbidden: Admins only']));
+    }
     $id = $_GET['id'] ?? '';
     if (!$id) {
         http_response_code(400);
@@ -137,7 +151,6 @@ if ($method === 'DELETE') {
     $sql = "DELETE FROM certificates WHERE id = '$id'";
 
     if ($db->query($sql)) {
-        logAction($db, "Deleted Certificate", $id);
         echo json_encode(['success' => true, 'deleted' => $db->affected_rows]);
     } else {
         http_response_code(500);

@@ -20,8 +20,8 @@ if (empty($username) || empty($password)) {
 }
 
 $conn = getDB();
-$stmt = $conn->prepare("SELECT id, username, password_hash, role FROM users WHERE username = ?");
-$stmt->bind_param("s", $username);
+$stmt = $conn->prepare("SELECT id, username, password_hash, role FROM users WHERE username = ? OR email = ?");
+$stmt->bind_param("ss", $username, $username);
 $stmt->execute();
 $result = $stmt->get_result();
 

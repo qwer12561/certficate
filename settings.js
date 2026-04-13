@@ -2,16 +2,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('account-form');
     const saveBanner = document.getElementById('save-banner');
     const currentUsernameDisplay = document.getElementById('current-username');
+    const currentEmailDisplay = document.getElementById('current-email');
     const newPassword = document.getElementById('new-password');
     const confirmPassword = document.getElementById('confirm-password');
     const passwordError = document.getElementById('password-error');
 
-    // Fetch current username
+    // Fetch current username and email
     fetch('api/account_settings.php')
         .then(res => res.json())
         .then(data => {
             if (data.success) {
                 currentUsernameDisplay.value = data.username;
+                if (currentEmailDisplay) currentEmailDisplay.value = data.email || '';
             }
         });
 
@@ -41,8 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (value.trim()) data[key] = value.trim();
         });
 
-        if (!data.new_username && !data.new_password) {
-            alert('Please provide a new username or password to update.');
+        if (!data.new_username && !data.new_password && !data.new_email) {
+            alert('Please provide a new username, email, or password to update.');
             return;
         }
 

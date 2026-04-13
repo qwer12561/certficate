@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=110">
+    <link rel="stylesheet" href="style.css?v=116">
     <script src="auth.js?v=110"></script>
     <style>
         .settings-container {
@@ -127,21 +127,54 @@
                         </div>
 
                         <div class="form-group">
-                            <label>New Username</label>
-                            <input type="text" name="new_username" placeholder="Enter new username (optional)">
+                            <label>Current Gmail</label>
+                            <input type="text" id="current-email" disabled
+                                style="opacity: 0.7; background: rgba(255,255,255,0.1);">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>New Username</label>
+                                <input type="text" name="new_username" placeholder="Change username">
+                            </div>
+                            <div class="form-group">
+                                <label>New Gmail</label>
+                                <input type="email" name="new_email" placeholder="Change Gmail">
+                            </div>
                         </div>
 
                         <div style="margin: 2rem 0; border-top: 1px solid var(--glass-border);"></div>
 
                         <div class="form-group">
                             <label>New Password</label>
-                            <input type="password" name="new_password" id="new-password"
-                                placeholder="Enter new password (optional)">
+                            <div class="password-wrapper">
+                                <input type="password" name="new_password" id="new-password"
+                                    placeholder="Enter new password (optional)" class="toggle-input">
+                                <button type="button" class="password-toggle"
+                                    onclick="togglePassword('new-password', this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="form-group">
                             <label>Confirm New Password</label>
-                            <input type="password" id="confirm-password" placeholder="Repeat new password">
+                            <div class="password-wrapper">
+                                <input type="password" id="confirm-password" placeholder="Repeat new password"
+                                    class="toggle-input">
+                                <button type="button" class="password-toggle"
+                                    onclick="togglePassword('confirm-password', this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                </button>
+                            </div>
                             <div id="password-error" class="error-message">Passwords do not match</div>
                         </div>
 
@@ -150,8 +183,18 @@
                         <div class="form-group"
                             style="background: rgba(255, 82, 82, 0.05); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255, 82, 82, 0.2);">
                             <label style="color: #ff5252;">Verify Current Password</label>
-                            <input type="password" name="current_password" required
-                                placeholder="Required to save changes">
+                            <div class="password-wrapper">
+                                <input type="password" name="current_password" id="current-password" required
+                                    placeholder="Required to save changes" class="toggle-input">
+                                <button type="button" class="password-toggle"
+                                    onclick="togglePassword('current-password', this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                </button>
+                            </div>
                             <p class="helper-text">You must enter your existing password to authorize these changes.</p>
                         </div>
 
@@ -165,7 +208,26 @@
         </main>
     </div>
 
-    <script src="settings.js?v=110"></script>
+    <script>
+        function togglePassword(id, btn) {
+            const input = document.getElementById(id);
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+
+            if (type === 'text') {
+                btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>`;
+            } else {
+                btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>`;
+            }
+        }
+    </script>
+    <script src="settings.js?v=111"></script>
     <script src="notifications.js?v=110"></script>
 </body>
 

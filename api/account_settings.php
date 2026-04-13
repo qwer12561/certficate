@@ -16,13 +16,13 @@ $method = $_SERVER['REQUEST_METHOD'];
 $db = getDB();
 
 if ($method === 'GET') {
-    // Return current username
-    $stmt = $db->prepare("SELECT username FROM users WHERE id = ?");
+    // Return current username and email
+    $stmt = $db->prepare("SELECT username, email FROM users WHERE id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
     if ($user = $result->fetch_assoc()) {
-        echo json_encode(['success' => true, 'username' => $user['username']]);
+        echo json_encode(['success' => true, 'username' => $user['username'], 'email' => $user['email'] ?? '']);
     } else {
         echo json_encode(['success' => false, 'error' => 'User not found']);
     }
@@ -32,6 +32,7 @@ elseif ($method === 'POST') {
     
     $current_password = $data['current_password'] ?? '';
     $new_username = $data['new_username'] ?? '';
+    $new_email = $data['new_email'] ?? '';
     $new_password = $data['new_password'] ?? '';
     
     if (empty($current_password)) {
@@ -74,8 +75,23 @@ elseif ($method === 'POST') {
         $new_hash = password_hash($new_password, PASSWORD_DEFAULT);
         $stmt = $db->prepare("UPDATE users SET password_hash = ? WHERE id = ?");
         $stmt->bind_param("si", $new_hash, $user_id);
-        if ($stmt->execute()) {
+        $stmt->execute();
+    }
+
+    // Update email if provided
+    if (!empty($new_email)) {
+        // Check if email is already taken
+        $stmt = $db->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
+        $stmt->bind_param("si", $new_email, $user_id);
+        $stmt->execute();
+        if ($stmt->get_result()->num_rows > 0) {
+            echo json_encode(['success' => false, 'error' => 'Email already taken']);
+            exit;
         }
+
+        $stmt = $db->prepare("UPDATE users SET email = ? WHERE id = ?");
+        $stmt->bind_param("si", $new_email, $user_id);
+        $stmt->execute();
     }
 
     echo json_encode(['success' => true, 'message' => 'Account settings updated successfully']);

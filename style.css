@@ -417,6 +417,50 @@ body {
     background: rgba(10, 25, 47, 0.8);
 }
 
+/* Password Toggle Styles */
+.password-wrapper {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+}
+
+.password-wrapper .toggle-input {
+    width: 100% !important;
+    padding-right: 48px !important;
+    /* Increased space for the toggle icon */
+}
+
+.password-toggle {
+    position: absolute !important;
+    right: 8px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    background: none !important;
+    border: none !important;
+    padding: 8px !important;
+    cursor: pointer !important;
+    color: var(--accent-color) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: var(--transition) !important;
+    border-radius: 50% !important;
+    z-index: 100 !important;
+}
+
+.password-toggle:hover {
+    color: #ffffff !important;
+    background: rgba(100, 255, 218, 0.2) !important;
+}
+
+.password-toggle svg {
+    width: 22px !important;
+    height: 22px !important;
+    pointer-events: none !important;
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.8)) !important;
+}
+
 .design-selector {
     display: flex;
     gap: 1rem;
